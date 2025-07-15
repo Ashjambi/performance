@@ -5,11 +5,11 @@ import remarkGfm from 'remark-gfm';
 import { XMarkIcon, PrinterIcon } from '@heroicons/react/24/solid';
 import { DocumentTextIcon, ChartBarIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import type { Manager } from '../data.js';
-import { calculateManagerOverallScore, calculatePillarScore } from '../data.js';
-import { generateMeetingSummary } from '../services/geminiService.js';
-import { Spinner } from './Spinner.js';
-import { AppStateContext } from '../context/AppContext.js';
+import type { Manager } from '../data.tsx';
+import { calculateManagerOverallScore, calculatePillarScore } from '../data.tsx';
+import { generateMeetingSummary } from '../services/geminiService.tsx';
+import { Spinner } from './Spinner.tsx';
+import { AppStateContext } from '../context/AppContext.tsx';
 
 type MeetingReportModalProps = {
     isOpen: boolean;

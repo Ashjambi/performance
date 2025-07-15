@@ -1,16 +1,16 @@
 import React, { useState, useContext } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { Dashboard } from './components/Dashboard.js';
-import { Header } from './components/Header.js';
-import { AddManagerModal } from './components/AddManagerModal.js';
-import { EditManagerModal } from './components/EditManagerModal.js';
-import { AppStateContext } from './context/AppContext.js';
-import { ROLES } from './data.js';
-import { ExecutiveDashboard } from './components/ExecutiveDashboard.js';
-import { AskGemini } from './components/AskGemini.js';
+import { Dashboard } from './components/Dashboard.tsx';
+import { Header } from './components/Header.tsx';
+import { AddManagerModal } from './components/AddManagerModal.tsx';
+import { EditManagerModal } from './components/EditManagerModal.tsx';
+import { AppStateContext } from './context/AppContext.tsx';
+import { ROLES } from './data.tsx';
+import { ExecutiveDashboard } from './components/ExecutiveDashboard.tsx';
+import { AskGemini } from './components/AskGemini.tsx';
 import { SparklesIcon } from '@heroicons/react/24/solid';
-import { MeetingReportModal } from './components/MeetingReportModal.js';
-import type { Manager } from './data.js';
+import { MeetingReportModal } from './components/MeetingReportModal.tsx';
+import type { Manager } from './data.tsx';
 
 
 const App = () => {

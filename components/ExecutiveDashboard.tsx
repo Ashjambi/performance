@@ -1,26 +1,27 @@
 
 
 
+
 import React, { useMemo, useState, useContext, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { AppStateContext, AppDispatchContext } from '../context/AppContext.js';
-import type { Manager, Pillar, KPI, AnalysisResult, ManagerRole, Recommendation, RiskProfile, ExecutiveTab, ManagerWithData } from '../data.js';
-import { calculateManagerOverallScore, calculatePillarScore, calculateKpiScore, getManagerSnapshotForPeriod } from '../data.js';
-import { AnalysisModal } from './AnalysisModal.js';
-import { Spinner } from './Spinner.js';
+import { AppStateContext, AppDispatchContext } from '../context/AppContext.tsx';
+import type { Manager, Pillar, KPI, AnalysisResult, ManagerRole, Recommendation, RiskProfile, ExecutiveTab, ManagerWithData } from '../data.tsx';
+import { calculateManagerOverallScore, calculatePillarScore, calculateKpiScore, getManagerSnapshotForPeriod } from '../data.tsx';
+import { AnalysisModal } from './AnalysisModal.tsx';
+import { Spinner } from './Spinner.tsx';
 import { SparklesIcon, PresentationChartLineIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon, CpuChipIcon, TrophyIcon, ArrowDownTrayIcon, DocumentMagnifyingGlassIcon, Squares2X2Icon, ShieldCheckIcon, ClipboardDocumentCheckIcon, DocumentTextIcon, BeakerIcon } from '@heroicons/react/24/outline';
 import { PencilSquareIcon } from '@heroicons/react/24/solid';
-import { generateExecutiveAnalysis, generateExecutiveForecastAnalysis, generateActionPlanSteps, generatePillarDiagnosis, generateBulkRiskProfiles } from '../services/geminiService.js';
-import type { PillarDiagnosisResult } from '../services/geminiService.js';
-import { KpiDrilldownModal } from './KpiDrilldownModal.js';
-import { CompetitionModal } from './CompetitionModal.js';
-import { WhatIfSimulationCard } from './WhatIfSimulationCard.js';
-import { PillarDiagnosisModal } from './PillarDiagnosisModal.js';
-import { AssignPlanToManagerModal } from './AssignPlanToManagerModal.js';
-import { SmartSummaryCard } from './SmartSummaryCard.js';
-import { ManagerMatrix } from './ManagerMatrix.js';
-import { ExecutiveActionHub } from './ExecutiveActionHub.js';
-import RiskAssessmentTab from './RiskAssessmentTab.js';
+import { generateExecutiveAnalysis, generateExecutiveForecastAnalysis, generateActionPlanSteps, generatePillarDiagnosis, generateBulkRiskProfiles } from '../services/geminiService.tsx';
+import type { PillarDiagnosisResult } from '../services/geminiService.tsx';
+import { KpiDrilldownModal } from './KpiDrilldownModal.tsx';
+import { CompetitionModal } from './CompetitionModal.tsx';
+import { WhatIfSimulationCard } from './WhatIfSimulationCard.tsx';
+import { PillarDiagnosisModal } from './PillarDiagnosisModal.tsx';
+import { AssignPlanToManagerModal } from './AssignPlanToManagerModal.tsx';
+import { SmartSummaryCard } from './SmartSummaryCard.tsx';
+import { ManagerMatrix } from './ManagerMatrix.tsx';
+import { ExecutiveActionHub } from './ExecutiveActionHub.tsx';
+import RiskAssessmentTab from './RiskAssessmentTab.tsx';
 
 
 declare var html2canvas: any;

@@ -1,9 +1,10 @@
 
+
 import React from 'react';
 import { toast } from 'react-hot-toast';
 import { ShieldCheckIcon, UserGroupIcon, StarIcon, ExclamationTriangleIcon, AcademicCapIcon, ArrowUpRightIcon } from '@heroicons/react/24/solid';
-import type { ManagerWithData } from '../data.js';
-import { Spinner } from './Spinner.js';
+import type { ManagerWithData } from '../data.tsx';
+import { Spinner } from './Spinner.tsx';
 
 type ManagerMatrixProps = {
     managersData: ManagerWithData[];

@@ -1,6 +1,6 @@
 import React, { createContext, useReducer, useEffect } from 'react';
-import { INITIAL_MANAGERS_DATA, ROLE_TEMPLATES, deepCopy, calculateKpiScore } from '../data.js';
-import type { Manager, ManagerRole, ActionPlan, Comment, Alert, TimePeriod } from '../data.js';
+import { INITIAL_MANAGERS_DATA, ROLE_TEMPLATES, deepCopy, calculateKpiScore } from '../data.tsx';
+import type { Manager, ManagerRole, ActionPlan, Comment, Alert, TimePeriod } from '../data.tsx';
 
 // --- STATE AND ACTION TYPES ---
 

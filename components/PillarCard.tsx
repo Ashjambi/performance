@@ -1,9 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import type { Pillar, TimePeriod } from '../data.js';
-import { calculatePillarScore } from '../data.js';
+import type { Pillar, TimePeriod } from '../data.tsx';
+import { calculatePillarScore } from '../data.tsx';
 import { ChartBarIcon, ShieldCheckIcon, BanknotesIcon, UserGroupIcon, HeartIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from 'recharts';
-import { PillarDetailModal } from './PillarDetailModal.js';
+import { PillarDetailModal } from './PillarDetailModal.tsx';
 
 type PillarCardProps = {
   pillar: Pillar;

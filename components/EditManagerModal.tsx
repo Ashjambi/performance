@@ -2,12 +2,12 @@ import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { XMarkIcon, TrashIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
 import { SparklesIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
-import type { Manager, ManagerRole, ManagerRoleValue, Pillar, KPI } from '../data.js';
-import { ROLE_TEMPLATES, ALL_KPIS, ALL_PILLARS_MASTER_LIST, KPI_CATEGORIES, deepCopy, RISK_KPI_IDS } from '../data.js';
-import { AppDispatchContext } from '../context/AppContext.js';
-import { ConfirmDeleteModal } from './ConfirmDeleteModal.js';
-import { generateKpiTargetSuggestion } from '../services/geminiService.js';
-import { Spinner } from './Spinner.js';
+import type { Manager, ManagerRole, ManagerRoleValue, Pillar, KPI } from '../data.tsx';
+import { ROLE_TEMPLATES, ALL_KPIS, ALL_PILLARS_MASTER_LIST, KPI_CATEGORIES, deepCopy, RISK_KPI_IDS } from '../data.tsx';
+import { AppDispatchContext } from '../context/AppContext.tsx';
+import { ConfirmDeleteModal } from './ConfirmDeleteModal.tsx';
+import { generateKpiTargetSuggestion } from '../services/geminiService.tsx';
+import { Spinner } from './Spinner.tsx';
 
 type EditManagerModalProps = {
   isOpen: boolean;

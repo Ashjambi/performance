@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { BeakerIcon, ArrowUpOnSquareIcon, DocumentTextIcon, XCircleIcon, SparklesIcon, ArrowPathIcon, ScaleIcon } from '@heroicons/react/24/outline';
-import { Spinner } from './Spinner.js';
-import { generateProcedureRiskAssessment } from '../services/geminiService.js';
-import type { ProcedureRiskAssessment } from '../data.js';
-import { ROLES } from '../data.js';
+import { Spinner } from './Spinner.tsx';
+import { generateProcedureRiskAssessment } from '../services/geminiService.tsx';
+import type { ProcedureRiskAssessment } from '../data.tsx';
+import { ROLES } from '../data.tsx';
 
 // A map to translate risk levels to colors for UI
 const LIKELIHOOD_COLOR: Record<string, string> = { 'نادر': 'bg-sky-500', 'غير محتمل': 'bg-green-500', 'محتمل': 'bg-yellow-500', 'مرجح': 'bg-orange-500', 'شبه مؤكد': 'bg-red-500' };

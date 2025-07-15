@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react';
-import { AppStateContext, AppDispatchContext } from '../context/AppContext.js';
-import type { ActionPlan, ActionStep, Comment } from '../data.js';
+import { AppStateContext, AppDispatchContext } from '../context/AppContext.tsx';
+import type { ActionPlan, ActionStep, Comment } from '../data.tsx';
 import { TrashIcon, ChevronDownIcon, CheckCircleIcon, UserCircleIcon, PaperAirplaneIcon, ClockIcon } from '@heroicons/react/24/solid';
 import { ClipboardDocumentListIcon, PlusCircleIcon, ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
-import { AddActionPlanModal } from './AddActionPlanModal.js';
+import { AddActionPlanModal } from './AddActionPlanModal.tsx';
 
 const ActionPlanCard = ({ plan }: { plan: ActionPlan }) => {
     const { selectedManagerId } = useContext(AppStateContext);

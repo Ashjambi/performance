@@ -1,13 +1,13 @@
 import React, { useMemo, useState, useContext } from 'react';
-import type { Pillar, KPI, AnalysisResult, Recommendation } from '../data.js';
-import { calculateManagerOverallScore } from '../data.js';
+import type { Pillar, KPI, AnalysisResult, Recommendation } from '../data.tsx';
+import { calculateManagerOverallScore } from '../data.tsx';
 import { RadialBarChart, RadialBar, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import { toast } from 'react-hot-toast';
-import { AnalysisModal } from './AnalysisModal.js';
-import { Spinner } from './Spinner.js';
+import { AnalysisModal } from './AnalysisModal.tsx';
+import { Spinner } from './Spinner.tsx';
 import { SparklesIcon } from '@heroicons/react/24/outline';
-import { AppStateContext, AppDispatchContext } from '../context/AppContext.js';
-import { generatePerformanceAnalysis, generateActionPlanSteps } from '../services/geminiService.js';
+import { AppStateContext, AppDispatchContext } from '../context/AppContext.tsx';
+import { generatePerformanceAnalysis, generateActionPlanSteps } from '../services/geminiService.tsx';
 
 const getScoreColor = (score) => {
   if (score >= 90) return '#22c55e'; // green-500

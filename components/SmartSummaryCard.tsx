@@ -1,10 +1,12 @@
 
+
+
 import React, { useState, useEffect, useContext } from 'react';
 import { toast } from 'react-hot-toast';
 import { SparklesIcon } from '@heroicons/react/24/outline';
-import { Spinner } from './Spinner.js';
-import { generateSmartSummary } from '../services/geminiService.js';
-import { AppStateContext } from '../context/AppContext.js';
+import { Spinner } from './Spinner.tsx';
+import { generateSmartSummary } from '../services/geminiService.tsx';
+import { AppStateContext } from '../context/AppContext.tsx';
 
 type SmartSummaryCardProps = {
     stationScore: number;

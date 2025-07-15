@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { Pillar, KPI, AnalysisResult, CalculationGuide, KPIHistory, Manager, ManagerRole, Recommendation, WhatIfAnalysis, RiskProfile, TimePeriod, ProcedureRiskAssessment } from '../data.js';
-import { calculateKpiScore, calculatePillarScore, calculateManagerOverallScore, KPI_CATEGORIES, forecastStationScore } from '../data.js';
+import type { Pillar, KPI, AnalysisResult, CalculationGuide, KPIHistory, Manager, ManagerRole, Recommendation, WhatIfAnalysis, RiskProfile, TimePeriod, ProcedureRiskAssessment } from '../data.tsx';
+import { calculateKpiScore, calculatePillarScore, calculateManagerOverallScore, KPI_CATEGORIES, forecastStationScore } from '../data.tsx';
 import { toast } from 'react-hot-toast';
 
 // --- Caching and Locking Service ---

@@ -1,11 +1,13 @@
 
 
+
+
 import React, { useMemo, useContext } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { ChartBarIcon } from '@heroicons/react/24/outline';
 import { PieChart, Pie, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts';
-import { AppStateContext } from '../context/AppContext.js';
-import { calculateKpiScore } from '../data.js';
+import { AppStateContext } from '../context/AppContext.tsx';
+import { calculateKpiScore } from '../data.tsx';
 
 const getScoreColor = (score) => {
   if (score >= 90) return '#22c55e'; // green-500
