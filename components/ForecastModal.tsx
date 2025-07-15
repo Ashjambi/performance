@@ -1,14 +1,15 @@
 
+
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { CpuChipIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { toast } from 'react-hot-toast';
-import type { KPI, AnalysisResult } from '../data.tsx';
-import { forecastKpiValue } from '../data.tsx';
-import { Spinner } from './Spinner.tsx';
-import { generateForecastAnalysis } from '../services/geminiService.tsx';
-import { AppStateContext } from '../context/AppContext.tsx';
+import type { KPI, AnalysisResult } from '../data.js';
+import { forecastKpiValue } from '../data.js';
+import { Spinner } from './Spinner.js';
+import { generateForecastAnalysis } from '../services/geminiService.js';
+import { AppStateContext } from '../context/AppContext.js';
 
 type ForecastModalProps = {
   isOpen: boolean;

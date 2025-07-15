@@ -1,11 +1,8 @@
-
-
-
 import React, { useState } from 'react';
 import { XMarkIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
-import type { AnalysisResult, Recommendation } from '../data.tsx';
-import { ROLES } from '../data.tsx';
-import { Spinner } from './Spinner.tsx';
+import type { AnalysisResult, Recommendation } from '../data.js';
+import { ROLES } from '../data.js';
+import { Spinner } from './Spinner.js';
 
 type AnalysisModalProps = {
   isOpen: boolean;

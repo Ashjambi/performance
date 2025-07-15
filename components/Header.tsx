@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react';
 import { UserPlusIcon, ChevronDownIcon, PencilSquareIcon, UserIcon, BellIcon } from '@heroicons/react/24/solid';
 import { PresentationChartLineIcon } from '@heroicons/react/24/outline';
-import { AppStateContext, AppDispatchContext } from '../context/AppContext.tsx';
-import type { Alert, TimePeriod } from '../data.tsx';
-import { ROLES } from '../data.tsx';
-import { AlertsPanel } from './AlertsPanel.tsx';
+import { AppStateContext, AppDispatchContext } from '../context/AppContext.js';
+import type { Alert, TimePeriod } from '../data.js';
+import { ROLES } from '../data.js';
+import { AlertsPanel } from './AlertsPanel.js';
 
 
 type HeaderProps = {

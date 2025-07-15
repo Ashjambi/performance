@@ -1,11 +1,12 @@
 
+
 import React, { useState, useMemo, useContext } from 'react';
 import { toast } from 'react-hot-toast';
 import { LightBulbIcon, SparklesIcon, ArrowDownCircleIcon, ArrowUpCircleIcon, BanknotesIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
-import { Spinner } from './Spinner.tsx';
-import { AppStateContext } from '../context/AppContext.tsx';
-import type { KPI, WhatIfAnalysis } from '../data.tsx';
-import { generateWhatIfAnalysis } from '../services/geminiService.tsx';
+import { Spinner } from './Spinner.js';
+import { AppStateContext } from '../context/AppContext.js';
+import type { KPI, WhatIfAnalysis } from '../data.js';
+import { generateWhatIfAnalysis } from '../services/geminiService.js';
 
 type WhatIfSimulationCardProps = {
     managers: any[];

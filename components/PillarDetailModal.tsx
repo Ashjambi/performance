@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
-import type { Pillar, TimePeriod } from '../data.tsx';
-import { KpiCard } from './KpiCard.tsx';
+import type { Pillar, TimePeriod } from '../data.js';
+import { KpiCard } from './KpiCard.js';
 import { ChartBarIcon, ShieldCheckIcon, BanknotesIcon, UserGroupIcon, HeartIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 
 const ICONS = {

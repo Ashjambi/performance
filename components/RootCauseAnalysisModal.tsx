@@ -1,13 +1,14 @@
 
+
 import React, { useState, useEffect, useContext } from 'react';
 import { XMarkIcon, PlusCircleIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import { DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
-import type { KPI, Manager } from '../data.tsx';
-import { AppStateContext, AppDispatchContext } from '../context/AppContext.tsx';
-import { Spinner } from './Spinner.tsx';
-import { generateRootCauseAnalysis, generateActionPlanSteps } from '../services/geminiService.tsx';
-import type { RootCauseAnalysis } from '../services/geminiService.tsx';
+import type { KPI, Manager } from '../data.js';
+import { AppStateContext, AppDispatchContext } from '../context/AppContext.js';
+import { Spinner } from './Spinner.js';
+import { generateRootCauseAnalysis, generateActionPlanSteps } from '../services/geminiService.js';
+import type { RootCauseAnalysis } from '../services/geminiService.js';
 
 type RootCauseAnalysisModalProps = {
   isOpen: boolean;

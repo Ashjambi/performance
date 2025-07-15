@@ -7,6 +7,7 @@ export type Comment = {
 };
 
 export type TimePeriod = 'monthly' | 'quarterly' | 'yearly';
+export type ExecutiveTab = 'overview' | 'matrix' | 'risk_assessment' | 'action_hub';
 
 
 export type ActionStep = {
@@ -86,7 +87,7 @@ export type ProcedureRiskAssessment = {
 };
 
 
-// From types.tsx
+// From types.js
 export type KPI = {
   id: string;
   name: string;
@@ -134,6 +135,13 @@ export type Manager = {
   actionPlans: ActionPlan[];
 };
 
+export type ManagerWithData = {
+    id: string;
+    name: string;
+    score: number;
+    riskProfile: RiskProfile | null;
+};
+
 export type Recommendation = {
     text: string;
     targetRole: ManagerRole;
@@ -170,7 +178,7 @@ export type CalculationGuide = {
 export const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
 
 
-// From utils/kpiUtils.tsx
+// From utils/kpiUtils.js
 /**
  * Calculates a normalized score (0-100+) for a KPI based on its value and target.
  * It handles both cases where higher is better and lower is better.

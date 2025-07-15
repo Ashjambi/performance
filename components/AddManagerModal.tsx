@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
-import type { ManagerRole, ManagerRoleValue } from '../data.tsx';
-import { AppDispatchContext } from '../context/AppContext.tsx';
+import type { ManagerRole, ManagerRoleValue } from '../data.js';
+import { AppDispatchContext } from '../context/AppContext.js';
 import { toast } from 'react-hot-toast';
 
 type AddManagerModalProps = {

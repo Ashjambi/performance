@@ -1,12 +1,11 @@
-
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { CalculatorIcon, LightBulbIcon, SparklesIcon, ScaleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
-import type { KPI, CalculationGuide, CalculationFormula } from '../data.tsx';
-import { Spinner } from './Spinner.tsx';
-import { generateCalculationGuide } from '../services/geminiService.tsx';
-import { AppDispatchContext } from '../context/AppContext.tsx';
+import type { KPI, CalculationGuide, CalculationFormula } from '../data.js';
+import { Spinner } from './Spinner.js';
+import { generateCalculationGuide } from '../services/geminiService.js';
+import { AppDispatchContext } from '../context/AppContext.js';
 
 type HowToCalculateModalProps = {
   isOpen: boolean;

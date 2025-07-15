@@ -1,7 +1,8 @@
 
+
 import React, { useState, useContext } from 'react';
 import { XMarkIcon, PlusCircleIcon, TrashIcon } from '@heroicons/react/24/solid';
-import { AppDispatchContext, AppStateContext } from '../context/AppContext.tsx';
+import { AppDispatchContext, AppStateContext } from '../context/AppContext.js';
 import { toast } from 'react-hot-toast';
 
 type AddActionPlanModalProps = {

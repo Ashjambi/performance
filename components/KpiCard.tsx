@@ -1,17 +1,13 @@
-
-
-
-
 import React, { useState, useEffect, useContext } from 'react';
-import type { KPI, TimePeriod } from '../data.tsx';
-import { calculateKpiScore, RISK_KPI_IDS } from '../data.tsx';
+import type { KPI, TimePeriod } from '../data.js';
+import { calculateKpiScore, RISK_KPI_IDS } from '../data.js';
 import { InformationCircleIcon, CalculatorIcon, ArrowTrendingUpIcon, CpuChipIcon, DocumentMagnifyingGlassIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { PencilIcon } from '@heroicons/react/24/solid';
-import { HowToCalculateModal } from './HowToCalculateModal.tsx';
-import { HistoricalTrendModal } from './HistoricalTrendModal.tsx';
-import { ForecastModal } from './ForecastModal.tsx';
-import { RootCauseAnalysisModal } from './RootCauseAnalysisModal.tsx';
-import { AppDispatchContext } from '../context/AppContext.tsx';
+import { HowToCalculateModal } from './HowToCalculateModal.js';
+import { HistoricalTrendModal } from './HistoricalTrendModal.js';
+import { ForecastModal } from './ForecastModal.js';
+import { RootCauseAnalysisModal } from './RootCauseAnalysisModal.js';
+import { AppDispatchContext } from '../context/AppContext.js';
 
 
 type KpiCardProps = {

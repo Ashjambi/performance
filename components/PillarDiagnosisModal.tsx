@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 import { XMarkIcon, UserGroupIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
 import { DocumentMagnifyingGlassIcon, LightBulbIcon } from '@heroicons/react/24/outline';
-import type { PillarDiagnosisResult } from '../services/geminiService.tsx';
-import type { Recommendation } from '../data.tsx';
-import { ROLES } from '../data.tsx';
-import { Spinner } from './Spinner.tsx';
+import type { PillarDiagnosisResult } from '../services/geminiService.js';
+import type { Recommendation } from '../data.js';
+import { ROLES } from '../data.js';
+import { Spinner } from './Spinner.js';
 
 type PillarDiagnosisModalProps = {
   isOpen: boolean;

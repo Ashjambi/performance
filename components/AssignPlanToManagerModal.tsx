@@ -1,8 +1,9 @@
 
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { XMarkIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
-import type { Recommendation, Manager } from '../data.tsx';
-import { ROLES } from '../data.tsx';
+import type { Recommendation, Manager } from '../data.js';
+import { ROLES } from '../data.js';
 
 type AssignPlanToManagerModalProps = {
   isOpen: boolean;

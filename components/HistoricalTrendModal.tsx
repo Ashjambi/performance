@@ -1,14 +1,15 @@
 
+
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { ArrowTrendingUpIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { toast } from 'react-hot-toast';
-import type { KPI, KPIHistory } from '../data.tsx';
-import { calculatePeerAverageForKpi } from '../data.tsx';
-import { AppStateContext } from '../context/AppContext.tsx';
-import { Spinner } from './Spinner.tsx';
-import { generateTrendAnalysis } from '../services/geminiService.tsx';
+import type { KPI, KPIHistory } from '../data.js';
+import { calculatePeerAverageForKpi } from '../data.js';
+import { AppStateContext } from '../context/AppContext.js';
+import { Spinner } from './Spinner.js';
+import { generateTrendAnalysis } from '../services/geminiService.js';
 
 type HistoricalTrendModalProps = {
   isOpen: boolean;

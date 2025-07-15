@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import type { Manager, ActionPlan } from '../data.tsx';
+import type { Manager, ActionPlan } from '../data.js';
 import { ClipboardDocumentCheckIcon, FunnelIcon, UserCircleIcon, ClockIcon } from '@heroicons/react/24/solid';
 
 type FilterStatus = 'all' | 'in_progress' | 'completed';

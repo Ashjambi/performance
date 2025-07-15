@@ -1,15 +1,12 @@
-
-
-
 import React, { useContext, useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
-import type { Pillar } from '../data.tsx';
-import { PillarCard } from './PillarCard.tsx';
-import { OverallScore } from './OverallScore.tsx';
-import { AppStateContext, AppDispatchContext } from '../context/AppContext.tsx';
-import { ActionPlans } from './ActionPlans.tsx';
+import type { Pillar } from '../data.js';
+import { PillarCard } from './PillarCard.js';
+import { OverallScore } from './OverallScore.js';
+import { AppStateContext, AppDispatchContext } from '../context/AppContext.js';
+import { ActionPlans } from './ActionPlans.js';
 import { Squares2X2Icon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
-import { getManagerSnapshotForPeriod } from '../data.tsx';
+import { getManagerSnapshotForPeriod } from '../data.js';
 
 export const Dashboard = () => {
   const { managers, selectedManagerId, currentTimePeriod } = useContext(AppStateContext);
