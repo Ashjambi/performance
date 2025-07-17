@@ -5,9 +5,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npx vite",
-    "build": "npx vite build",
-    "preview": "npx vite preview"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@google/genai": "^0.15.0",
