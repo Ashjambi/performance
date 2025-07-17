@@ -5,11 +5,11 @@ import { XMarkIcon } from '@heroicons/react/24/solid';
 import { CpuChipIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { toast } from 'react-hot-toast';
-import type { KPI, AnalysisResult } from '../data.js';
-import { forecastKpiValue } from '../data.js';
-import { Spinner } from './Spinner.js';
-import { generateForecastAnalysis } from '../services/geminiService.js';
-import { AppStateContext } from '../context/AppContext.js';
+import type { KPI, AnalysisResult } from '../data.tsx';
+import { forecastKpiValue } from '../data.tsx';
+import { Spinner } from './Spinner.tsx';
+import { generateForecastAnalysis } from '../services/geminiService.tsx';
+import { AppStateContext } from '../context/AppContext.tsx';
 
 type ForecastModalProps = {
   isOpen: boolean;
@@ -117,7 +117,10 @@ export const ForecastModal = ({ isOpen, onClose, kpi }: ForecastModalProps) => {
                             <Legend wrapperStyle={{fontSize: '14px'}}/>
                             <Line type="monotone" dataKey="value" name="الأداء الفعلي" stroke="#38bdf8" strokeWidth={2} activeDot={{ r: 8 }} connectNulls={false} />
                             <Line type="monotone" dataKey="forecast" name="الأداء المتوقع" stroke="#facc15" strokeWidth={2} strokeDasharray="5 5" activeDot={{ r: 8 }} connectNulls={true} />
-                            <ReferenceLine y={kpi.target} label={{ value: "الهدف", position: "insideTopLeft", fill: "#f87171" }} stroke="#f87171" strokeDasharray="4 4" />
+                            <ReferenceLine y={kpi.target} label={{ value: "الهدف", position: "insideTopLeft", fill: "#f87171", fontSize: 12 }} stroke="#f87171" strokeDasharray="4 4" />
+                            {kpi.benchmark && (
+                                <ReferenceLine y={kpi.benchmark.target} label={{ value: `المرجع (${kpi.benchmark.source})`, position: "insideTopRight", fill: "#a78bfa", fontSize: 12 }} stroke="#a78bfa" strokeDasharray="4 4" />
+                            )}
                         </LineChart>
                     </ResponsiveContainer>
                 </div>

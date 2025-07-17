@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useContext } from 'react';
 import type { Pillar, KPI, AnalysisResult, Recommendation } from '../data.tsx';
 import { calculateManagerOverallScore } from '../data.tsx';

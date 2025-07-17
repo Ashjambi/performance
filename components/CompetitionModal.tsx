@@ -1,14 +1,13 @@
 
-
 import React, { useState, useMemo, useContext, useEffect } from 'react';
 import { XMarkIcon, TrophyIcon } from '@heroicons/react/24/solid';
 import { SparklesIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
-import { AppStateContext } from '../context/AppContext.js';
-import type { Manager } from '../data.js';
-import { getAvailableMonthsForCompetition, calculateManagerScoreForMonth, getManagerSnapshotForMonth } from '../data.js';
-import { generateCompetitionAnnouncement, generateWinnerAnalysis } from '../services/geminiService.js';
-import { Spinner } from './Spinner.js';
+import { AppStateContext } from '../context/AppContext.tsx';
+import type { Manager } from '../data.tsx';
+import { getAvailableMonthsForCompetition, calculateManagerScoreForMonth, getManagerSnapshotForMonth } from '../data.tsx';
+import { generateCompetitionAnnouncement, generateWinnerAnalysis } from '../services/geminiService.tsx';
+import { Spinner } from './Spinner.tsx';
 
 type CompetitionResult = {
     name: string;

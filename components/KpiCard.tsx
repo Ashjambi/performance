@@ -1,13 +1,15 @@
+
 import React, { useState, useEffect, useContext } from 'react';
 import type { KPI, TimePeriod } from '../data.tsx';
 import { calculateKpiScore, RISK_KPI_IDS } from '../data.tsx';
-import { InformationCircleIcon, CalculatorIcon, ArrowTrendingUpIcon, CpuChipIcon, DocumentMagnifyingGlassIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { InformationCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { PencilIcon } from '@heroicons/react/24/solid';
 import { HowToCalculateModal } from './HowToCalculateModal.tsx';
 import { HistoricalTrendModal } from './HistoricalTrendModal.tsx';
 import { ForecastModal } from './ForecastModal.tsx';
 import { RootCauseAnalysisModal } from './RootCauseAnalysisModal.tsx';
 import { AppDispatchContext } from '../context/AppContext.tsx';
+import { KpiCardActions } from './KpiCardActions.tsx';
 
 
 type KpiCardProps = {
@@ -42,9 +44,11 @@ export const KpiCard = ({ kpi, pillarId, currentTimePeriod }: KpiCardProps) => {
   const [isTrendModalOpen, setIsTrendModalOpen] = useState(false);
   const [isForecastModalOpen, setIsForecastModalOpen] = useState(false);
   const [isRcaModalOpen, setIsRcaModalOpen] = useState(false);
+  const [isInfoExpanded, setIsInfoExpanded] = useState(false);
   
   const isEditable = currentTimePeriod === 'monthly';
   const isRiskKpi = RISK_KPI_IDS.has(kpi.id);
+  const showRcaButton = isEditable && score < 90;
 
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -83,6 +87,7 @@ export const KpiCard = ({ kpi, pillarId, currentTimePeriod }: KpiCardProps) => {
   // Update local state if prop changes (e.g., manager switched or period changed)
   useEffect(() => {
       setCurrentValue(String(kpi.value));
+      setIsInfoExpanded(false); // Also collapse info section on data change
   }, [kpi.value]);
 
 
@@ -96,64 +101,52 @@ export const KpiCard = ({ kpi, pillarId, currentTimePeriod }: KpiCardProps) => {
                 {isRiskKpi && (
                     <div className="group relative flex items-center me-1">
                         <ExclamationTriangleIcon className="h-4 w-4 text-red-400 cursor-help" />
-                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-1 bg-slate-950 text-slate-200 text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 border border-slate-600">
+                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-1 bg-slate-950 text-slate-200 text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-30 border border-slate-500">
                             مؤشر متعلق بالمخاطر
                         </div>
                     </div>
                 )}
-                <div className="group relative flex items-center">
-                    <InformationCircleIcon className="h-4 w-4 text-slate-500 cursor-pointer" />
-                    <div className="absolute bottom-full mb-2 end-0 w-64 p-3 bg-slate-900 text-slate-200 text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 border border-slate-600">
-                        <p className="font-bold mb-1 text-cyan-400">الوصف:</p>
-                        <p className="mb-2 whitespace-normal">{kpi.tooltip.description}</p>
-                        <p className="font-bold mb-1 text-cyan-400">مصدر البيانات:</p>
-                        <p className="mb-2 whitespace-normal">{kpi.tooltip.dataSource}</p>
-                        <p className="font-bold mb-1 text-cyan-400">الأهمية:</p>
-                        <p className="whitespace-normal">{kpi.tooltip.importance}</p>
-                    </div>
-                </div>
-                <button onClick={() => setIsHowToModalOpen(true)} className="group relative flex items-center ms-1" aria-label="الحاسبة التفاعلية">
-                    <CalculatorIcon className="h-4 w-4 text-slate-500 cursor-pointer hover:text-cyan-400 transition-colors" />
-                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-1 bg-slate-950 text-slate-200 text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 border border-slate-600">
-                        الحاسبة التفاعلية
-                    </div>
-                </button>
-                 <button onClick={() => setIsTrendModalOpen(true)} className="group relative flex items-center ms-1" aria-label="تحليل الاتجاه التاريخي">
-                    <ArrowTrendingUpIcon className="h-4 w-4 text-slate-500 cursor-pointer hover:text-cyan-400 transition-colors" />
-                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-1 bg-slate-950 text-slate-200 text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 border border-slate-600">
-                        تحليل الاتجاه التاريخي
-                    </div>
-                </button>
-                <button onClick={() => setIsForecastModalOpen(true)} className="group relative flex items-center ms-1" aria-label="التنبؤ المستقبلي">
-                    <CpuChipIcon className="h-4 w-4 text-slate-500 cursor-pointer hover:text-cyan-400 transition-colors" />
-                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap px-2 py-1 bg-slate-950 text-slate-200 text-xs rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 border border-slate-600">
-                        التنبؤ المستقبلي
-                    </div>
+                <button
+                    onClick={() => setIsInfoExpanded(!isInfoExpanded)}
+                    className="flex items-center"
+                    aria-expanded={isInfoExpanded}
+                    aria-controls={`kpi-info-${kpi.id}`}
+                    title={isInfoExpanded ? "إخفاء التفاصيل" : "عرض التفاصيل"}
+                >
+                    <InformationCircleIcon className={`h-4 w-4 cursor-pointer transition-colors ${isInfoExpanded ? 'text-cyan-400' : 'text-slate-500 hover:text-cyan-500'}`} />
                 </button>
              </div>
           </div>
-          <div 
-            className={`text-sm font-bold text-white text-end flex-shrink-0 flex items-center gap-1 ${isEditable ? 'group cursor-pointer' : 'cursor-default'}`}
-            onClick={() => isEditable && setIsEditing(true)}
-          >
-            {isEditing && isEditable ? (
-              <input
-                type="number"
-                value={currentValue}
-                onChange={handleValueChange}
-                onBlur={handleBlur}
-                onKeyDown={handleKeyDown}
-                className="bg-slate-700 text-white w-20 text-end rounded p-1 outline-none ring-2 ring-cyan-500"
-                autoFocus
-                step="0.1"
-              />
-            ) : (
-              <>
-                {isEditable && <PencilIcon className="h-3 w-3 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"/>}
-                <span>{kpi.value.toLocaleString()}</span>
-              </>
-            )}
-            <span className="text-xs text-slate-400 ms-1">{getUnitLabel(kpi.unit, kpi.value)}</span>
+          <div className="flex items-center flex-shrink-0">
+            <div 
+                className={`text-sm font-bold text-white text-end flex items-center gap-1 ${isEditable ? 'group cursor-pointer' : 'cursor-default'}`}
+                onClick={() => isEditable && setIsEditing(true)}
+            >
+                {isEditing && isEditable ? (
+                <input
+                    type="number"
+                    value={currentValue}
+                    onChange={handleValueChange}
+                    onBlur={handleBlur}
+                    onKeyDown={handleKeyDown}
+                    className="bg-slate-700 text-white w-20 text-end rounded p-1 outline-none ring-2 ring-cyan-500"
+                    autoFocus
+                    step="0.1"
+                />
+                ) : (
+                <>
+                    {isEditable && <PencilIcon className="h-3 w-3 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity"/>}
+                    <span>{kpi.value.toLocaleString()}</span>
+                </>
+                )}
+                <span className="text-xs text-slate-400 ms-1">{getUnitLabel(kpi.unit, kpi.value)}</span>
+            </div>
+            <KpiCardActions 
+                onHowToCalculate={() => setIsHowToModalOpen(true)}
+                onTrend={() => setIsTrendModalOpen(true)}
+                onForecast={() => setIsForecastModalOpen(true)}
+                onRca={showRcaButton ? () => setIsRcaModalOpen(true) : undefined}
+            />
           </div>
         </div>
         <div className="w-full bg-slate-700 rounded-full h-2">
@@ -174,20 +167,32 @@ export const KpiCard = ({ kpi, pillarId, currentTimePeriod }: KpiCardProps) => {
                   </>
               )}
           </span>
-          <div className="flex items-center gap-2">
-            {isEditable && score < 90 && (
-              <button
-                onClick={() => setIsRcaModalOpen(true)}
-                className="px-2 py-0.5 rounded-md bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 font-semibold text-xs flex items-center gap-1 border border-cyan-500/20"
-                aria-label="تشخيص السبب الجذري"
-              >
-                <DocumentMagnifyingGlassIcon className="h-3 w-3" />
-                <span>تشخيص</span>
-              </button>
-            )}
-            <span className={`font-bold ${scoreColorClass}`}>الأداء: {Math.round(score)}%</span>
-          </div>
+          <span className={`font-bold ${scoreColorClass}`}>الأداء: {Math.round(score)}%</span>
         </div>
+        
+        {isInfoExpanded && (
+            <div id={`kpi-info-${kpi.id}`} className="mt-3 pt-3 border-t border-slate-700 text-xs text-slate-300 space-y-2 animate-fade-in-down">
+                <div>
+                    <p className="font-bold text-cyan-400 mb-0.5">الوصف:</p>
+                    <p className="whitespace-normal text-slate-400">{kpi.tooltip.description}</p>
+                </div>
+                <div>
+                    <p className="font-bold text-cyan-400 mb-0.5">مصدر البيانات:</p>
+                    <p className="whitespace-normal text-slate-400">{kpi.tooltip.dataSource}</p>
+                </div>
+                <div>
+                    <p className="font-bold text-cyan-400 mb-0.5">الأهمية:</p>
+                    <p className="whitespace-normal text-slate-400">{kpi.tooltip.importance}</p>
+                </div>
+            </div>
+        )}
+         <style>{`
+            @keyframes fade-in-down {
+              from { opacity: 0; transform: translateY(-5px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fade-in-down { animation: fade-in-down 0.3s ease-out forwards; }
+        `}</style>
       </div>
       <HowToCalculateModal
         isOpen={isHowToModalOpen}

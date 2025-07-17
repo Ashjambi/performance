@@ -1,6 +1,6 @@
 import React, { createContext, useReducer, useEffect } from 'react';
 import { INITIAL_MANAGERS_DATA, ROLE_TEMPLATES, deepCopy, calculateKpiScore } from '../data.tsx';
-import type { Manager, ManagerRole, ActionPlan, Comment, Alert, TimePeriod } from '../data.tsx';
+import type { Manager, ManagerRole, ActionPlan, Comment, Alert, TimePeriod, RegisteredRisk, RiskStatus, IdentifiedRisk } from '../data.tsx';
 
 // --- STATE AND ACTION TYPES ---
 
@@ -10,6 +10,7 @@ type State = {
   currentView: 'manager' | 'executive';
   alerts: Alert[];
   currentTimePeriod: TimePeriod;
+  riskRegister: RegisteredRisk[];
 };
 
 type Action =
@@ -28,7 +29,9 @@ type Action =
   | { type: 'UPDATE_ACTION_STEP_ASSIGNEE'; payload: { managerId: string; planId: string; stepId: string, assignee: string } }
   | { type: 'UPDATE_KPI_TARGET'; payload: { kpiId: string, newTarget: number } }
   | { type: 'MARK_ALERT_READ'; payload: { alertId?: string, all?: boolean } }
-  | { type: 'SET_TIME_PERIOD'; payload: TimePeriod };
+  | { type: 'SET_TIME_PERIOD'; payload: TimePeriod }
+  | { type: 'ADD_TO_RISK_REGISTER'; payload: { risk: IdentifiedRisk, source: string } }
+  | { type: 'UPDATE_RISK_STATUS'; payload: { riskId: string, newStatus: RiskStatus } };
 
 
 // --- REDUCER ---
@@ -280,6 +283,38 @@ const appReducer = (state: State, action: Action): State => {
         };
     }
 
+    case 'ADD_TO_RISK_REGISTER': {
+        const { risk, source } = action.payload;
+        // Prevent adding duplicates from the same source
+        const existingRisk = state.riskRegister.find(
+            r => r.risk_title === risk.risk_title && r.source === source
+        );
+        if (existingRisk) {
+            return state; // Don't add if it already exists
+        }
+        const newRisk: RegisteredRisk = {
+            ...risk,
+            id: `risk_${Date.now()}`,
+            source,
+            status: 'مفتوح',
+            createdAt: new Date().toISOString(),
+        };
+        return {
+            ...state,
+            riskRegister: [newRisk, ...state.riskRegister],
+        };
+    }
+
+    case 'UPDATE_RISK_STATUS': {
+        const { riskId, newStatus } = action.payload;
+        return {
+            ...state,
+            riskRegister: state.riskRegister.map(risk =>
+                risk.id === riskId ? { ...risk, status: newStatus } : risk
+            ),
+        };
+    }
+
     default:
       return state;
   }
@@ -313,6 +348,7 @@ const getInitialState = (): State => {
                 currentView: savedState.currentView || 'manager',
                 alerts: [], // Alerts are transient and recalculated on load
                 currentTimePeriod: savedState.currentTimePeriod || 'monthly',
+                riskRegister: savedState.riskRegister || [],
             };
         } else {
              state = {
@@ -321,6 +357,7 @@ const getInitialState = (): State => {
                 currentView: 'manager',
                 alerts: [],
                 currentTimePeriod: 'monthly',
+                riskRegister: [],
             };
         }
     } catch (e) {
@@ -331,6 +368,7 @@ const getInitialState = (): State => {
             currentView: 'manager',
             alerts: [],
             currentTimePeriod: 'monthly',
+            riskRegister: [],
         };
     }
 

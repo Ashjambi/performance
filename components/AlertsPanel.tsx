@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
-import type { Alert } from '../data.js';
-import { AppDispatchContext } from '../context/AppContext.js';
+import type { Alert } from '../data.tsx';
+import { AppDispatchContext } from '../context/AppContext.tsx';
 import { BellAlertIcon } from '@heroicons/react/24/solid';
 
 type AlertsPanelProps = {

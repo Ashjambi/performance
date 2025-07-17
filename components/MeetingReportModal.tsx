@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { XMarkIcon, PrinterIcon } from '@heroicons/react/24/solid';
 import { DocumentTextIcon, ChartBarIcon, ClipboardDocumentCheckIcon } from '@heroicons/react/24/outline';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import type { Manager } from '../data.tsx';
 import { calculateManagerOverallScore, calculatePillarScore } from '../data.tsx';
 import { generateMeetingSummary } from '../services/geminiService.tsx';
@@ -39,9 +39,11 @@ export const MeetingReportModal = ({ isOpen, onClose, manager }: MeetingReportMo
 
     const overallScore = calculateManagerOverallScore(manager.pillars);
     const openActionPlans = manager.actionPlans.filter(p => p.steps.some(s => !s.isCompleted));
+    
     const pillarData = manager.pillars.map(p => ({
         name: p.name,
         score: calculatePillarScore(p),
+        fullMark: 100,
     }));
 
     const handlePrint = () => {
@@ -96,15 +98,26 @@ export const MeetingReportModal = ({ isOpen, onClose, manager }: MeetingReportMo
                         {/* Pillars Chart */}
                         <div className="p-4 bg-slate-800 rounded-lg">
                             <h2 className="text-lg font-bold text-cyan-400 mb-3 flex items-center gap-2"><ChartBarIcon className="h-5 w-5"/>أداء الركائز</h2>
-                            <div className="h-60 w-full">
+                            <div className="h-64 w-full">
                                 <ResponsiveContainer>
-                                    <BarChart data={pillarData} layout="vertical" margin={{ top: 0, right: 0, left: 50, bottom: 0 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                                        <XAxis type="number" domain={[0, 100]} stroke="#9ca3af" fontSize={12} />
-                                        <YAxis type="category" dataKey="name" width={100} tick={{ fill: '#d1d5db', fontSize: 10 }} />
-                                        <Tooltip cursor={{fill: 'rgba(100,116,139,0.1)'}} contentStyle={{backgroundColor: '#1e293b', border: '1px solid #334155'}}/>
-                                        <Bar dataKey="score" fill="#22d3ee" background={{ fill: '#334155' }} />
-                                    </BarChart>
+                                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={pillarData}>
+                                        <PolarGrid stroke="#374151" />
+                                        <PolarAngleAxis dataKey="name" tick={{ fill: '#d1d5db', fontSize: 11, fontFamily: 'Cairo' }} />
+                                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                                        <Tooltip
+                                            contentStyle={{
+                                                backgroundColor: '#1e293b',
+                                                border: '1px solid #334155',
+                                                borderRadius: '0.5rem',
+                                                fontFamily: 'Cairo'
+                                            }}
+                                            labelStyle={{
+                                                color: '#ffffff',
+                                                fontWeight: 'bold'
+                                            }}
+                                        />
+                                        <Radar name={manager.name} dataKey="score" stroke="#22d3ee" fill="#22d3ee" fillOpacity={0.6} />
+                                    </RadarChart>
                                 </ResponsiveContainer>
                             </div>
                         </div>
@@ -130,6 +143,9 @@ export const MeetingReportModal = ({ isOpen, onClose, manager }: MeetingReportMo
                     @keyframes scale-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
                     .animate-scale-in { animation: scale-in 0.3s ease-out forwards; }
                     .prose-invert { --tw-prose-body: #d1d5db; --tw-prose-headings: #ffffff; --tw-prose-links: #38bdf8; --tw-prose-bold: #ffffff; }
+                    .recharts-polar-angle-axis-tick-value tspan {
+                        font-family: 'Cairo', sans-serif !important;
+                    }
                     
                     @media print {
                       body {
@@ -157,13 +173,18 @@ export const MeetingReportModal = ({ isOpen, onClose, manager }: MeetingReportMo
                        .printable-area .text-cyan-400 { color: #0891b2 !important; /* cyan-600 */}
                        .recharts-wrapper .recharts-surface, .recharts-wrapper .recharts-surface * {
                            fill: #000 !important;
+                           stroke: #374151 !important;
                        }
-                       .recharts-wrapper .recharts-cartesian-axis-tick-value tspan {
+                       .recharts-wrapper .recharts-polar-grid-concentric-polygon {
+                           stroke: #e5e7eb !important;
+                       }
+                       .recharts-wrapper .recharts-radar, .recharts-wrapper .recharts-radar-polygon {
+                            stroke: #0891b2 !important;
+                            fill: #0891b2 !important;
+                       }
+                       .recharts-wrapper .recharts-polar-angle-axis-tick-value tspan {
                             fill: #374151 !important;
                        }
-                        .recharts-wrapper .recharts-bar-background-rectangle {
-                            fill: #e5e7eb !important;
-                        }
                     }
                 `}</style>
             </div>

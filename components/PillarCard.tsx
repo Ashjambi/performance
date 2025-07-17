@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState } from 'react';
 import type { Pillar, TimePeriod } from '../data.tsx';
 import { calculatePillarScore } from '../data.tsx';

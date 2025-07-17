@@ -1,120 +1,14 @@
-// --- NEW TYPES ---
-export type Comment = {
-    id: string;
-    author: string;
-    text: string;
-    createdAt: string; // ISO String
-};
+// This file is the single source of truth for all data types, utility functions, and initial data for the application.
 
+// =================================================================================
+// SECTION: TYPE DEFINITIONS
+// =================================================================================
+
+// --- Base & Time ---
 export type TimePeriod = 'monthly' | 'quarterly' | 'yearly';
-export type ExecutiveTab = 'overview' | 'matrix' | 'risk_assessment' | 'action_hub';
+export type ExecutiveTab = 'overview' | 'matrix' | 'risk_assessment' | 'risk_register' | 'action_hub';
 
-
-export type ActionStep = {
-    id: string;
-    text: string;
-    isCompleted: boolean;
-    assignedTo?: string;
-    dueDate?: string; // ISO String
-};
-
-export type ActionPlan = {
-    id:string;
-    originalRecommendation: string;
-    steps: ActionStep[];
-    createdAt: string; // ISO string
-    comments: Comment[];
-};
-
-export type KPIHistory = {
-  date: string; // ISO string
-  value: number;
-};
-
-export type Alert = {
-    id: string;
-    managerId: string;
-    managerName: string;
-    kpiName: string;
-    kpiScore: number;
-    timestamp: string; // ISO String
-    isRead: boolean;
-};
-
-export type WhatIfAnalysis = {
-    simulation_summary: string;
-    overall_score_impact: {
-        from: number;
-        to: number;
-    };
-    related_kpis_impact: {
-        kpi_name: string;
-        impact_description: string;
-    }[];
-    recommendations: string[];
-};
-
-export type RiskProfile = {
-  profile: string;
-  reasoning: string;
-  risk_level: 'Low' | 'Medium' | 'High';
-};
-
-export type ProcedureRiskAssessment = {
-  procedure_summary: string;
-  compliance_analysis: {
-    overall_compliance_level: 'متوافق' | 'انحرافات طفيفة' | 'انحرافات كبيرة' | 'غير متوافق';
-    summary: string;
-    discrepancies: {
-      described_practice: string;
-      manual_guideline: string;
-      risk_implication: string;
-    }[];
-  };
-  identified_risks: {
-    risk_title: string;
-    risk_description: string;
-    category: 'السلامة' | 'التشغيل' | 'الأمن' | 'العوامل البشرية' | 'الامتثال';
-    likelihood: 'نادر' | 'غير محتمل' | 'محتمل' | 'مرجح' | 'شبه مؤكد';
-    impact: 'ضئيل' | 'طفيف' | 'متوسط' | 'كبير' | 'كارثي';
-  }[];
-  mitigation_steps: {
-    step_title: string;
-    step_description: string;
-    responsible_department: ManagerRole;
-  }[];
-  overall_assessment: string;
-};
-
-
-// From types.js
-export type KPI = {
-  id: string;
-  name: string;
-  value: number;
-  target: number;
-  unit: 'percentage' | 'minutes' | 'per_1000_pax' | 'incidents' | 'score' | 'currency' | 'days' | 'per_1000_mov';
-  lowerIsBetter: boolean;
-  tooltip: {
-    description: string;
-    dataSource: string;
-    importance: string;
-  };
-  history: KPIHistory[];
-  benchmark?: {
-    target: number;
-    source: string;
-  };
-};
-
-export type Pillar = {
-  id: string;
-  name: string;
-  weight: number;
-  iconName: 'ChartBarIcon' | 'ShieldCheckIcon' | 'BanknotesIcon' | 'UserGroupIcon' | 'HeartIcon' | 'ArchiveBoxIcon';
-  kpis: KPI[];
-};
-
+// --- Roles & Managers ---
 export const ROLES = {
   RAMP: 'Ramp Operations',
   PASSENGER: 'Passenger Services',
@@ -142,6 +36,64 @@ export type ManagerWithData = {
     riskProfile: RiskProfile | null;
 };
 
+// --- KPIs, Pillars, History ---
+export type KPIHistory = {
+  date: string; // ISO string
+  value: number;
+};
+
+export type KPI = {
+  id: string;
+  name: string;
+  value: number;
+  target: number;
+  unit: 'percentage' | 'minutes' | 'per_1000_pax' | 'incidents' | 'score' | 'currency' | 'days' | 'per_1000_mov';
+  lowerIsBetter: boolean;
+  tooltip: {
+    description: string;
+    dataSource: string;
+    importance: string;
+  };
+  history: KPIHistory[];
+  benchmark?: {
+    target: number;
+    source: string;
+  };
+};
+
+export type Pillar = {
+  id:string;
+  name: string;
+  weight: number;
+  iconName: 'ChartBarIcon' | 'ShieldCheckIcon' | 'BanknotesIcon' | 'UserGroupIcon' | 'HeartIcon' | 'ArchiveBoxIcon';
+  kpis: KPI[];
+};
+
+// --- Action Plans & Comments ---
+export type Comment = {
+    id: string;
+    author: string;
+    text: string;
+    createdAt: string; // ISO String
+};
+
+export type ActionStep = {
+    id: string;
+    text: string;
+    isCompleted: boolean;
+    assignedTo?: string;
+    dueDate?: string; // ISO String
+};
+
+export type ActionPlan = {
+    id:string;
+    originalRecommendation: string;
+    steps: ActionStep[];
+    createdAt: string; // ISO string
+    comments: Comment[];
+};
+
+// --- Gemini & Analysis Types ---
 export type Recommendation = {
     text: string;
     targetRole: ManagerRole;
@@ -151,6 +103,79 @@ export type AnalysisResult = {
   analysis: string;
   recommendations: Recommendation[];
 };
+
+export type WhatIfAnalysis = {
+    simulation_summary: string;
+    overall_score_impact: {
+        from: number;
+        to: number;
+    };
+    related_kpis_impact: {
+        kpi_name: string;
+        impact_description: string;
+    }[];
+    recommendations: string[];
+};
+
+export type RiskProfile = {
+  profile: string;
+  reasoning: string;
+  risk_level: 'Low' | 'Medium' | 'High';
+};
+
+export type IdentifiedRisk = {
+  risk_title: string;
+  risk_description: string;
+  category: 'السلامة' | 'التشغيل' | 'الأمن' | 'العوامل البشرية' | 'الامتثال';
+  likelihood: 'نادر' | 'غير محتمل' | 'محتمل' | 'مرجح' | 'شبه مؤكد';
+  impact: 'ضئيل' | 'طفيف' | 'متوسط' | 'كبير' | 'كارثي';
+};
+
+export type ProcedureRiskAssessment = {
+  procedure_summary: string;
+  compliance_analysis: {
+    overall_compliance_level: 'متوافق' | 'انحرافات طفيفة' | 'انحرافات كبيرة' | 'غير متوافق';
+    summary: string;
+    discrepancies: {
+      described_practice: string;
+      manual_guideline: string;
+      risk_implication: string;
+    }[];
+  };
+  identified_risks: IdentifiedRisk[];
+  mitigation_steps: {
+    step_title: string;
+    step_description: string;
+    responsible_department: ManagerRole;
+  }[];
+  overall_assessment: string;
+};
+
+export type StandardProcedureAssessment = {
+  procedure_summary: string;
+  inherent_risks: {
+    risk_title: string;
+    risk_description: string;
+    category: 'السلامة' | 'التشغيل' | 'الأمن' | 'العوامل البشرية' | 'الامتثال';
+  }[];
+  mitigation_strategies: {
+    strategy_title: string;
+    strategy_description: string;
+    responsible_department: ManagerRole;
+  }[];
+  overall_assessment: string;
+};
+
+// --- Risk Register Types ---
+export type RiskStatus = 'مفتوح' | 'قيد المراجعة' | 'تم التخفيف' | 'مغلق';
+
+export type RegisteredRisk = IdentifiedRisk & {
+  id: string;
+  source: string; 
+  status: RiskStatus;
+  createdAt: string; // ISO String
+};
+
 
 export type CalculationField = {
   id: string;
@@ -173,12 +198,25 @@ export type CalculationGuide = {
   formula: CalculationFormula;
 };
 
+// --- Alerts ---
+export type Alert = {
+    id: string;
+    managerId: string;
+    managerName: string;
+    kpiName: string;
+    kpiScore: number;
+    timestamp: string; // ISO String
+    isRead: boolean;
+};
 
-// A simple deep copy function
+// =================================================================================
+// SECTION: UTILITY FUNCTIONS
+// =================================================================================
+
+// --- Simple Utils ---
 export const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
 
-
-// From utils/kpiUtils.js
+// --- Score Calculation ---
 /**
  * Calculates a normalized score (0-100+) for a KPI based on its value and target.
  * It handles both cases where higher is better and lower is better.
@@ -254,7 +292,7 @@ export const calculatePeerAverageForKpi = (
 };
 
 
-// --- AGGREGATION ENGINE ---
+// --- Data Aggregation ---
 export const getAggregatedKpiValue = (
     kpi: KPI,
     period: TimePeriod
@@ -302,8 +340,7 @@ export const getManagerSnapshotForPeriod = (
     return managerSnapshot;
 };
 
-// --- COMPETITION ENGINE ---
-
+// --- Competition Engine ---
 /**
  * Gets a list of unique months from all manager histories for the competition dropdown.
  * @param managers Array of all managers.
@@ -393,8 +430,7 @@ export const getManagerSnapshotForMonth = (manager: Manager, monthIdentifier: st
 };
 
 
-// --- FORECASTING ENGINE ---
-
+// --- Forecasting Engine ---
 /**
  * Calculates the slope (m) and y-intercept (b) for a set of data points.
  * @param data An array of objects with x and y properties.
@@ -494,7 +530,11 @@ export const forecastStationScore = (managers: Manager[]): { stationHistory: KPI
     return { stationHistory, forecastedScore: Math.round(forecastedScore) };
 };
 
+// =================================================================================
+// SECTION: MASTER DATA & TEMPLATES
+// =================================================================================
 
+// --- History Generator ---
 const generateHistory = (initialValue: number, isLowerBetter: boolean) => {
     const history: KPIHistory[] = [];
     let currentValue = initialValue;
@@ -508,11 +548,12 @@ const generateHistory = (initialValue: number, isLowerBetter: boolean) => {
     return history;
 }
 
-// --- MASTER KPI DEFINITIONS ---
+// --- Master KPI Definitions ---
 export const ALL_KPIS: Record<string, Omit<KPI, 'value' | 'history'>> = {
     absenteeism_rate: {
         id: 'absenteeism_rate', name: 'معدل الغياب', target: 3, unit: 'percentage', lowerIsBetter: true,
-        tooltip: { description: 'نسبة أيام الغياب غير المخطط له إلى إجمالي أيام العمل.', dataSource: 'HRMS', importance: 'قد يكون مؤشراً على ضغط العمل أو انخفاض الرضا الوظيفي.' }
+        tooltip: { description: 'نسبة أيام الغياب غير المخطط له إلى إجمالي أيام العمل.', dataSource: 'HRMS', importance: 'قد يكون مؤشراً على ضغط العمل أو انخفاض الرضا الوظيفي.' },
+        benchmark: { target: 4, source: 'Industry Average' }
     },
     accident_rate: {
         id: 'accident_rate', name: 'معدل الحوادث والإصابات', target: 1.0, unit: 'incidents', lowerIsBetter: true,
@@ -520,7 +561,8 @@ export const ALL_KPIS: Record<string, Omit<KPI, 'value' | 'history'>> = {
     },
     aircraft_waiting_time: {
         id: 'aircraft_waiting_time', name: 'وقت انتظار الطائرة للخدمة', target: 5, unit: 'minutes', lowerIsBetter: true,
-        tooltip: { description: 'الوقت الذي تنتظره الطائرة قبل بدء الخدمة بسبب تأخير من جانب المناولة الأرضية.', dataSource: 'سجلات التشغيل, AIMS', importance: 'يؤثر على إجمالي وقت خدمة الطائرة (TAT) ورضا شركات الطيران.' }
+        tooltip: { description: 'الوقت الذي تنتظره الطائرة قبل بدء الخدمة بسبب تأخير من جانب المناولة الأرضية.', dataSource: 'سجلات التشغيل, AIMS', importance: 'يؤثر على إجمالي وقت خدمة الطائرة (TAT) ورضا شركات الطيران.' },
+        benchmark: { target: 7, source: 'SLA Standard' }
     },
     airline_complaint_index: {
         id: 'airline_complaint_index', name: 'مؤشر شكاوى شركات الطيران', target: 8, unit: 'per_1000_mov', lowerIsBetter: true,
@@ -536,7 +578,8 @@ export const ALL_KPIS: Record<string, Omit<KPI, 'value' | 'history'>> = {
     },
     audit_compliance: {
         id: 'audit_compliance', name: 'نتيجة تدقيق السلامة', target: 95, unit: 'score', lowerIsBetter: false,
-        tooltip: { description: 'النتيجة المحققة في عمليات تدقيق السلامة الميدانية الداخلية والخارجية (مثل ISAGO).', dataSource: 'تقارير التدقيق', importance: 'يؤكد على الالتزام بالمعايير العالمية للسلامة (ISAGO) وجودة العمليات.' }
+        tooltip: { description: 'النتيجة المحققة في عمليات تدقيق السلامة الميدانية الداخلية والخارجية (مثل ISAGO).', dataSource: 'تقارير التدقيق', importance: 'يؤكد على الالتزام بالمعايير العالمية للسلامة (ISAGO) وجودة العمليات.' },
+        benchmark: { target: 92, source: 'ISAGO Standard' }
     },
     audit_findings_per_audit: {
         id: 'audit_findings_per_audit', name: 'معدل المخالفات لكل تدقيق', target: 1, unit: 'incidents', lowerIsBetter: true,
@@ -547,8 +590,8 @@ export const ALL_KPIS: Record<string, Omit<KPI, 'value' | 'history'>> = {
         tooltip: { description: 'النسبة المئوية لبنود الامتثال التي تم تحقيقها بنجاح ضمن عمليات التدقيق (مثل ISAGO) من إجمالي البنود المدققة.', dataSource: 'تقارير التدقيق الداخلي والخارجي', importance: 'يقيس مدى الالتزام التفصيلي بالإجراءات والمعايير العالمية للسلامة والجودة.' }
     },
     avg_turnaround_time: {
-        id: 'avg_turnaround_time', name: 'متوسط وقت خدمة الطائرة (TAT)', target: 40, unit: 'minutes', lowerIsBetter: true,
-        tooltip: { description: 'الوقت من توقف الطائرة حتى جاهزية الإقلاع.', dataSource: 'سجلات التشغيل', importance: 'مؤشر أساسي في كل اتفاقية مستوى خدمة (SLA) ويؤثر مباشرة على رضا شركات الطيران.' },
+        id: 'avg_turnaround_time', name: 'وقت الاستجابة للطائرة (ATT)', target: 40, unit: 'minutes', lowerIsBetter: true,
+        tooltip: { description: 'الوقت المستغرق من لحظة وصول الطائرة إلى البوابة حتى لحظة مغادرتها.', dataSource: 'سجلات التشغيل', importance: 'مؤشر أساسي في كل اتفاقية مستوى خدمة (SLA) ويؤثر مباشرة على رضا شركات الطيران.' },
         benchmark: { target: 35, source: 'Airline SLA' }
     },
     baggage_accuracy: {
@@ -570,7 +613,8 @@ export const ALL_KPIS: Record<string, Omit<KPI, 'value' | 'history'>> = {
     },
     boarding_gate_performance: {
         id: 'boarding_gate_performance', name: 'الالتزام بوقت إغلاق البوابة', target: 98, unit: 'percentage', lowerIsBetter: false,
-        tooltip: { description: 'نسبة الرحلات التي تم فيها إغلاق بوابة الصعود للطائرة في الوقت المحدد دون تأخير.', dataSource: 'نظام التحكم في المغادرة (DCS)', importance: 'مؤشر حاسم لضمان إقلاع الرحلات في وقتها المحدد وتحقيق رضا العملاء.' }
+        tooltip: { description: 'نسبة الرحلات التي تم فيها إغلاق بوابة الصعود للطائرة في الوقت المحدد دون تأخير.', dataSource: 'نظام التحكم في المغادرة (DCS)', importance: 'مؤشر حاسم لضمان إقلاع الرحلات في وقتها المحدد وتحقيق رضا العملاء.' },
+        benchmark: { target: 99, source: 'Best Practice' }
     },
     boarding_pass_accuracy: {
         id: 'boarding_pass_accuracy', name: 'معدل دقة إصدار بطاقات الصعود', target: 99.5, unit: 'percentage', lowerIsBetter: false,
@@ -586,7 +630,8 @@ export const ALL_KPIS: Record<string, Omit<KPI, 'value' | 'history'>> = {
     },
     checkin_queue_time: {
         id: 'checkin_queue_time', name: 'متوسط وقت الانتظار عند التسجيل', target: 5, unit: 'minutes', lowerIsBetter: true,
-        tooltip: { description: 'متوسط المدة التي ينتظرها المسافر في طابور كاونترات التسجيل.', dataSource: 'مراقبة الكاميرات، دراسات ميدانية', importance: 'يؤثر على رضا الركاب المغادرين وانسيابية الحركة في المطار.' }
+        tooltip: { description: 'متوسط المدة التي ينتظرها المسافر في طابور كاونترات التسجيل.', dataSource: 'مراقبة الكاميرات، دراسات ميدانية', importance: 'يؤثر على رضا الركاب المغادرين وانسيابية الحركة في المطار.' },
+        benchmark: { target: 8, source: 'ACI ASQ' }
     },
     checkin_time: {
         id: 'checkin_time', name: 'وقت إنهاء إجراءات السفر', target: 3, unit: 'minutes', lowerIsBetter: true,
@@ -606,7 +651,7 @@ export const ALL_KPIS: Record<string, Omit<KPI, 'value' | 'history'>> = {
     },
     denied_boarding_rate: {
         id: 'denied_boarding_rate', name: 'معدل منع الصعود للطائرة', target: 0.1, unit: 'percentage', lowerIsBetter: true,
-        tooltip: { description: 'نسبة الركاب الذين مُنعوا من السفر لأسباب تشغيلية كالحجوزات الزائدة.', dataSource: 'تقارير نظام الحجز، DCS', importance: 'يؤثر بشدة على السمعة وقد تترتب عليه تكاليف تعويضات عالية.' }
+        tooltip: { description: 'نسبة الركاب الذين مُنعوا من السفر لأسباب تشغيلية كالحجوزات الزائدة.', dataSource: 'تقارير نظام الحجز, DCS', importance: 'يؤثر بشدة على السمعة وقد تترتب عليه تكاليف تعويضات عالية.' }
     },
     employee_turnover: {
         id: 'employee_turnover', name: 'معدل دوران الموظفين', target: 0.8, unit: 'percentage', lowerIsBetter: true,
@@ -623,7 +668,8 @@ export const ALL_KPIS: Record<string, Omit<KPI, 'value' | 'history'>> = {
     },
     first_time_fix_rate: {
         id: 'first_time_fix_rate', name: 'معدل الإصلاح من المرة الأولى', target: 90, unit: 'percentage', lowerIsBetter: false,
-        tooltip: { description: 'نسبة الأعطال التي تم إصلاحها بنجاح من المحاولة الأولى.', dataSource: 'CMMS', importance: 'يعكس كفاءة وجودة أعمال الصيانة.' }
+        tooltip: { description: 'نسبة الأعطال التي تم إصلاحها بنجاح من المحاولة الأولى.', dataSource: 'CMMS', importance: 'يعكس كفاءة وجودة أعمال الصيانة.' },
+        benchmark: { target: 85, source: 'MRO Best Practice' }
     },
     fod_incidents: {
         id: 'fod_incidents', name: 'حوادث الأجسام الغريبة (FOD)', target: 0, unit: 'incidents', lowerIsBetter: true,
@@ -654,13 +700,18 @@ export const ALL_KPIS: Record<string, Omit<KPI, 'value' | 'history'>> = {
         tooltip: { description: 'عدد حوادث الأضرار التي تلحق بالطائرات أو المعدات الأرضية لكل 1000 حركة.', dataSource: 'تقارير السلامة', importance: 'مؤشر سلامة حرج يهدف إلى تحقيق صفر أضرار، وهو من أهم مقاييس الأداء.' },
         benchmark: { target: 0.08, source: 'IATA ISAGO' }
     },
+    ground_handling_incidents_ghi: {
+        id: 'ground_handling_incidents_ghi', name: 'حوادث المناولة الأرضية (GHI)', target: 0.5, unit: 'per_1000_mov', lowerIsBetter: true,
+        tooltip: { description: 'عدد الحوادث التي تقع أثناء عمليات المناولة الأرضية، مثل اصطدام المعدات بالطائرات أو إصابات الموظفين.', dataSource: 'تقارير السلامة (SMS)', importance: 'مؤشر رئيسي للسلامة التشغيلية، يؤثر على تكاليف الإصلاح والتعويضات وسمعة الشركة.' }
+    },
     ground_transport_availability: {
         id: 'ground_transport_availability', name: 'معدل توفر وسائل النقل', target: 90, unit: 'percentage', lowerIsBetter: false,
         tooltip: { description: 'النسبة المئوية لمركبات النقل الأرضي (للطواقم والركاب) المتاحة للعمل.', dataSource: 'سجلات الصيانة والتشغيل', importance: 'يضمن انسيابية حركة الأفراد في ساحة المطار.' }
     },
     gse_availability: {
-        id: 'gse_availability', name: 'نسبة توفر المعدات الأرضية (GSE)', target: 98, unit: 'percentage', lowerIsBetter: false,
-        tooltip: { description: 'نسبة الوقت الذي تكون فيه المعدات جاهزة للعمل من إجمالي ساعات التشغيل المتاحة.', dataSource: 'سجلات الصيانة', importance: 'أساس الكفاءة التشغيلية؛ يضمن توفر المعدات اللازمة للعمليات دون تأخير.' }
+        id: 'gse_availability', name: 'جاهزية المعدات (EA)', target: 98, unit: 'percentage', lowerIsBetter: false,
+        tooltip: { description: 'نسبة المعدات التشغيلية المتاحة للاستخدام في أي وقت.', dataSource: 'سجلات الصيانة', importance: 'أساس الكفاءة التشغيلية؛ يضمن توفر المعدات اللازمة للعمليات دون تأخير.' },
+        benchmark: { target: 98, source: 'IATA AHM' }
     },
     gse_utilization: {
         id: 'gse_utilization', name: 'استغلال المعدات الأرضية (GSE)', target: 85, unit: 'percentage', lowerIsBetter: false,
@@ -737,7 +788,8 @@ export const ALL_KPIS: Record<string, Omit<KPI, 'value' | 'history'>> = {
     },
     preventive_maintenance_compliance: {
         id: 'preventive_maintenance_compliance', name: 'الالتزام بالصيانة الدورية', target: 100, unit: 'percentage', lowerIsBetter: false,
-        tooltip: { description: 'نسبة مهام الصيانة الدورية المجدولة التي تم إنجازها في وقتها المحدد.', dataSource: 'نظام إدارة الصيانة (CMMS)', importance: 'يقلل من الأعطال المفاجئة ويزيد من عمر المعدات، وفقًا لمعايير IATA AHM 1110.' }
+        tooltip: { description: 'نسبة مهام الصيانة الدورية المجدولة التي تم إنجازها في وقتها المحدد.', dataSource: 'نظام إدارة الصيانة (CMMS)', importance: 'يقلل من الأعطال المفاجئة ويزيد من عمر المعدات، وفقًا لمعايير IATA AHM 1110.' },
+        benchmark: { target: 98, source: 'IATA AHM 1110' }
     },
     productivity_per_agent: {
         id: 'productivity_per_agent', name: 'معدل الإنتاجية لكل موظف', target: 25, unit: 'score', lowerIsBetter: false,
@@ -811,6 +863,10 @@ export const ALL_KPIS: Record<string, Omit<KPI, 'value' | 'history'>> = {
         id: 'spare_parts_availability', name: 'معدل توفر قطع الغيار الحرجة', target: 95, unit: 'percentage', lowerIsBetter: false,
         tooltip: { description: 'نسبة توفر قطع الغيار المصنفة كحرجة في المخزون عند طلبها.', dataSource: 'نظام إدارة المخزون', importance: 'يقلل من وقت توقف المعدات.' }
     },
+    staff_productivity_sp: {
+        id: 'staff_productivity_sp', name: 'إنتاجية الموظفين (SP)', target: 90, unit: 'score', lowerIsBetter: false,
+        tooltip: { description: 'كفاءة الموظفين في إنجاز المهام الموكلة إليهم.', dataSource: 'نظام إدارة الموارد (RMS)', importance: 'تؤثر على التكاليف التشغيلية والقدرة على التعامل مع حجم العمل.' }
+    },
     standards_compliance_rate: {
         id: 'standards_compliance_rate', name: 'معدل الامتثال للمعايير', target: 95, unit: 'percentage', lowerIsBetter: false,
         tooltip: { description: 'نسبة التدقيقات وعمليات الفحص التي تم اجتيازها بنجاح مقابل إجمالي التدقيقات.', dataSource: 'تقارير الجودة والتدقيق (ISAGO)', importance: 'يؤكد على الالتزام بمعايير السلامة والجودة العالمية.' }
@@ -829,15 +885,14 @@ export const ALL_KPIS: Record<string, Omit<KPI, 'value' | 'history'>> = {
     },
 };
 
-// --- KPI CATEGORIZATION ---
-// This new structure organizes KPIs into logical groups for easier management.
+// --- KPI Categorization ---
 export const KPI_CATEGORIES: Record<string, string[]> = {
     'الكفاءة التشغيلية (ساحة وركاب)': ['otp', 'avg_turnaround_time', 'loading_accuracy', 'first_bag_delivery', 'last_bag_delivery', 'checkin_queue_time', 'boarding_gate_performance', 'checkin_time', 'boarding_time', 'turnaround_plan_compliance', 'aircraft_waiting_time', 'baggage_loading_time', 'pushback_delay_rate', 'marshalling_accuracy', 'refueling_time', 'fueling_accuracy', 'on_time_baggage_delivery_rate', 'ground_transport_availability', 'request_response_time_transport', 'handling_delay_rate', 'on_time_checkin_completion'],
     'تجربة العميل ورضاهم': ['baggage_accuracy', 'formal_complaints', 'sla_compliance', 'passenger_satisfaction_csat', 'prm_wait_time', 'no_show_rate', 'denied_boarding_rate', 'passenger_satisfaction_score', 'boarding_pass_accuracy'],
-    'السلامة والجودة والأمن': ['accident_rate', 'audit_compliance', 'fod_incidents', 'proactive_safety_reports', 'corrective_action_closure_rate', 'security_breach_incidents', 'security_compliance_rate', 'baggage_damage_rate', 'marshalling_incidents_rate', 'fuel_spill_incidents', 'ground_damage_rate', 'standards_compliance_rate', 'incident_complaint_rate', 'security_incident_rate', 'injury_rate_osha', 'audit_item_compliance_rate', 'baggage_damage_rate_per_1000', 'operational_incident_rate', 'audit_findings_per_audit'],
+    'السلامة والجودة والأمن': ['accident_rate', 'audit_compliance', 'fod_incidents', 'proactive_safety_reports', 'corrective_action_closure_rate', 'security_breach_incidents', 'security_compliance_rate', 'baggage_damage_rate', 'marshalling_incidents_rate', 'fuel_spill_incidents', 'ground_damage_rate', 'standards_compliance_rate', 'incident_complaint_rate', 'security_incident_rate', 'injury_rate_osha', 'audit_item_compliance_rate', 'baggage_damage_rate_per_1000', 'operational_incident_rate', 'audit_findings_per_audit', 'ground_handling_incidents_ghi'],
     'إدارة المعدات والصيانة': ['gse_utilization', 'gse_availability', 'preventive_maintenance_compliance', 'mean_time_to_repair', 'first_time_fix_rate', 'spare_parts_availability', 'equipment_downtime'],
     'الأداء المالي': ['budget_adherence', 'overtime_costs', 'cost_per_turnaround', 'profitability_per_flight'],
-    'إدارة الموارد البشرية والفريق': ['employee_turnover', 'training_completion', 'absenteeism_rate', 'roster_efficiency', 'productivity_per_agent', 'resource_utilization_efficiency'],
+    'إدارة الموارد البشرية والفريق': ['employee_turnover', 'training_completion', 'absenteeism_rate', 'roster_efficiency', 'productivity_per_agent', 'resource_utilization_efficiency', 'staff_productivity_sp'],
     'علاقات العملاء (شركات الطيران)': ['airline_satisfaction_score', 'contract_renewal_rate', 'request_response_time_airline', 'airline_complaint_index', 'airline_satisfaction_percent', 'on_time_complaint_closure_rate'],
     'الإدارة والتخطيط': ['forecasting_accuracy', 'resource_allocation_accuracy', 'shift_coverage_compliance'],
     'الاستدامة والبيئة': ['fuel_consumption_per_flight', 'waste_recycling_rate'],
@@ -847,7 +902,7 @@ export const KPI_CATEGORIES: Record<string, string[]> = {
 export const RISK_KPI_IDS = new Set(KPI_CATEGORIES['السلامة والجودة والأمن']);
 
 
-// Utility to add a default value and history to a KPI definition
+// --- KPI Instantiation Utility ---
 const kpiWithValue = (kpiId: string, value: number): KPI => {
     const kpiMaster = deepCopy(ALL_KPIS[kpiId]);
     const history = generateHistory(value, kpiMaster.lowerIsBetter);
@@ -857,9 +912,7 @@ const kpiWithValue = (kpiId: string, value: number): KPI => {
 };
 
 
-// --- REVISED ROLE-BASED TEMPLATES ---
-
-// Standardized Leadership Pillar - To be used across all roles
+// --- Role-based Templates ---
 const LEADERSHIP_PILLAR: Pillar = {
     id: 'leadership_management',
     name: 'القيادة وإدارة الفريق',
@@ -868,7 +921,8 @@ const LEADERSHIP_PILLAR: Pillar = {
     kpis: [
         kpiWithValue('employee_turnover', 0.7),
         kpiWithValue('training_completion', 99),
-        kpiWithValue('absenteeism_rate', 2.5)
+        kpiWithValue('absenteeism_rate', 2.5),
+        kpiWithValue('staff_productivity_sp', 88),
     ]
 };
 
@@ -880,7 +934,7 @@ const RAMP_PILLARS: Pillar[] = [
   },
   {
     id: 'safety_security_ramp', name: 'السلامة والأمن في الساحة', weight: 25, iconName: 'ShieldCheckIcon',
-    kpis: [ kpiWithValue('accident_rate', 0.5), kpiWithValue('fod_incidents', 0), kpiWithValue('ground_damage_rate', 0.2), kpiWithValue('marshalling_incidents_rate', 0.6) ],
+    kpis: [ kpiWithValue('accident_rate', 0.5), kpiWithValue('fod_incidents', 0), kpiWithValue('ground_damage_rate', 0.2), kpiWithValue('marshalling_incidents_rate', 0.6), kpiWithValue('ground_handling_incidents_ghi', 0.6) ],
   },
   {
     id: 'financial_performance_ramp', name: 'الأداء المالي للساحة', weight: 10, iconName: 'BanknotesIcon',
