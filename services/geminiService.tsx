@@ -1,5 +1,6 @@
 
 
+
 import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
 import type { Pillar, KPI, AnalysisResult, CalculationGuide, KPIHistory, Manager, ManagerRole, Recommendation, WhatIfAnalysis, RiskProfile, TimePeriod, ProcedureRiskAssessment, StandardProcedureAssessment, TrainingScenario } from '../data.tsx';
 import { calculateKpiScore, calculatePillarScore, calculateManagerOverallScore, KPI_CATEGORIES, forecastStationScore } from '../data.tsx';
@@ -31,6 +32,29 @@ const setInCache = (key: string, data: any): void => {
 };
 // --- End Caching Service ---
 
+// --- AI Initialization and Guard ---
+const apiKey = process.env.API_KEY;
+let ai: GoogleGenAI | null = null;
+
+if (apiKey) {
+  try {
+    ai = new GoogleGenAI({ apiKey });
+  } catch (e) {
+    console.error("Failed to initialize GoogleGenAI", e);
+    ai = null;
+  }
+} else {
+  console.warn("Gemini API key is not configured. AI features will be disabled.");
+}
+
+const getAI = (): GoogleGenAI => {
+    if (!ai) {
+        const errorMessage = "ميزات الذكاء الاصطناعي معطلة. لم يتم تكوين مفتاح الواجهة البرمجية (API Key).";
+        throw new Error(errorMessage);
+    }
+    return ai;
+};
+
 
 const getUnitLabel = (unit: KPI['unit'], value: number | string): string => {
   switch (unit) {
@@ -45,8 +69,6 @@ const getUnitLabel = (unit: KPI['unit'], value: number | string): string => {
     default: return '';
   }
 };
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const analysisSchema = {
     type: Type.OBJECT,
@@ -89,6 +111,7 @@ export type PillarDiagnosisResult = {
 
 
 export const generatePerformanceAnalysis = async (manager: Manager, timePeriod: TimePeriod): Promise<AnalysisResult> => {
+    const ai = getAI();
     const cacheKey = `analysis_${manager.id}_${timePeriod}`;
     const cachedData = getFromCache<AnalysisResult>(cacheKey);
     if (cachedData) {
@@ -143,6 +166,7 @@ export const generateExecutiveAnalysis = async (
     managersForDisplay: Manager[],
     timePeriod: TimePeriod
 ): Promise<AnalysisResult> => {
+    const ai = getAI();
     const cacheKey = `exec_analysis_${timePeriod}`;
     const cachedData = getFromCache<AnalysisResult>(cacheKey);
     if (cachedData) {
@@ -253,6 +277,7 @@ export const generateExecutiveAnalysis = async (
 
 
 export const generateCalculationGuide = async (kpi: KPI): Promise<CalculationGuide> => {
+    const ai = getAI();
     const cacheKey = `guide_${kpi.id}`;
     const cachedData = getFromCache<CalculationGuide>(cacheKey);
     if (cachedData) {
@@ -332,6 +357,7 @@ export const generateCalculationGuide = async (kpi: KPI): Promise<CalculationGui
 };
 
 export const generateActionPlanSteps = async (recommendation: string): Promise<{ steps: { text: string, days_to_complete: number }[] }> => {
+    const ai = getAI();
     const cacheKey = `plan_steps_${recommendation.substring(0, 100)}`;
     const cachedData = getFromCache<{ steps: { text: string, days_to_complete: number }[] }>(cacheKey);
     if (cachedData) {
@@ -387,6 +413,7 @@ export const generateTrendAnalysis = async (
     kpi: KPI, 
     managerId: string
 ): Promise<{analysis: string; suggestion: string}> => {
+    const ai = getAI();
     const cacheKey = `trend_analysis_${managerId}_${kpi.id}`;
     const cachedData = getFromCache<{analysis: string; suggestion: string}>(cacheKey);
     if (cachedData) {
@@ -441,6 +468,7 @@ export const generateForecastAnalysis = async (
     managerId: string,
     forecastedValue: number
 ): Promise<AnalysisResult> => {
+    const ai = getAI();
     const cacheKey = `forecast_analysis_${managerId}_${kpi.id}`;
     const cachedData = getFromCache<AnalysisResult>(cacheKey);
     if (cachedData) {
@@ -486,6 +514,7 @@ export const generateExecutiveForecastAnalysis = async (
     managers: Manager[], 
     timePeriod: TimePeriod
 ): Promise<AnalysisResult> => {
+    const ai = getAI();
     const cacheKey = `exec_forecast_${timePeriod}`;
     const cachedData = getFromCache<AnalysisResult>(cacheKey);
     if (cachedData) {
@@ -534,6 +563,7 @@ export const generateExecutiveForecastAnalysis = async (
 };
 
 export const generateKpiTargetSuggestion = async (kpi: KPI): Promise<{ suggested_target: number; reasoning: string }> => {
+    const ai = getAI();
     const cacheKey = `target_suggestion_${kpi.id}`;
     const cachedData = getFromCache<{ suggested_target: number; reasoning: string }>(cacheKey);
     if (cachedData) {
@@ -594,6 +624,7 @@ export const generateCompetitionAnnouncement = async (
     winnerScore: number,
     monthLabel: string
 ): Promise<{announcement: string}> => {
+    const ai = getAI();
     const cacheKey = `comp_announcement_${winnerName}_${monthLabel}`;
     const cachedData = getFromCache<{announcement: string}>(cacheKey);
     if (cachedData) return cachedData;
@@ -657,6 +688,7 @@ export const generateWinnerAnalysis = async (
     winnerScore: number,
     monthLabel: string
 ): Promise<{ analysis: string }> => {
+    const ai = getAI();
     const cacheKey = `winner_analysis_${winnerSnapshot.id}_${monthLabel}`;
     const cachedData = getFromCache<{ analysis: string }>(cacheKey);
     if (cachedData) return cachedData;
@@ -713,6 +745,7 @@ export type RootCauseAnalysis = {
 };
 
 export const generateRootCauseAnalysis = async (kpi: KPI, manager: Manager): Promise<RootCauseAnalysis> => {
+    const ai = getAI();
     const cacheKey = `rca_${manager.id}_${kpi.id}`;
     const cachedData = getFromCache<RootCauseAnalysis>(cacheKey);
     if (cachedData) {
@@ -786,7 +819,7 @@ export const generatePillarDiagnosis = async (
     pillarScore: number,
     managersData: { managerName: string; kpiPerformances: { kpiName: string; score: number }[] }[]
 ): Promise<PillarDiagnosisResult> => {
-
+    const ai = getAI();
     const managersSummary = managersData
         .map(m => {
             const lowKpis = m.kpiPerformances.filter(k => k.score < 90).map(k => `${k.kpiName} (${k.score}%)`).join(', ');
@@ -869,7 +902,7 @@ export const generateWhatIfAnalysis = async (
     newValue: number,
     stationScore: number
 ): Promise<WhatIfAnalysis> => {
-
+    const ai = getAI();
     const prompt = `
         أنت مستشار استراتيجي أول في شركة طيران عالمية. مهمتك هي إجراء محاكاة "ماذا لو" (What-If) لتقييم التأثير المحتمل لتحسين مؤشر أداء رئيسي معين.
         
@@ -936,6 +969,7 @@ export const generateWhatIfAnalysis = async (
 };
 
 export const generateBulkRiskProfiles = async (managers: Manager[], timePeriod: TimePeriod): Promise<{ [managerId: string]: RiskProfile }> => {
+    const ai = getAI();
     const cacheKey = `bulk_risk_profiles_${timePeriod}_${managers.map(m => m.id).join('-')}`;
     const cachedData = getFromCache<{ [managerId: string]: RiskProfile }>(cacheKey);
     if (cachedData) {
@@ -1046,6 +1080,7 @@ ${riskKpiSummary}
 };
 
 export const generateMeetingSummary = async (manager: Manager, timePeriod: TimePeriod): Promise<{summary: string}> => {
+    const ai = getAI();
     const cacheKey = `meeting_summary_${manager.id}_${timePeriod}`;
     const cachedData = getFromCache<{summary: string}>(cacheKey);
     if (cachedData) {
@@ -1107,6 +1142,7 @@ export const generateMeetingSummary = async (manager: Manager, timePeriod: TimeP
 
 
 export const askConversational = async (question: string, context: any, useGoogleSearch: boolean): Promise<GenerateContentResponse> => {
+    const ai = getAI();
     let prompt: string;
     const config: any = {
         temperature: 0.2,
@@ -1167,6 +1203,7 @@ export const askConversational = async (question: string, context: any, useGoogl
 };
 
 export const generateDiscrepancyAnalysis = async (procedureText: string, fileData: string, mimeType: string): Promise<ProcedureRiskAssessment> => {
+    const ai = getAI();
     const filePart = {
         inlineData: {
             mimeType: mimeType,
@@ -1272,6 +1309,7 @@ export const generateDiscrepancyAnalysis = async (procedureText: string, fileDat
 
 
 export const assessProcedureFromManual = async (procedureName: string, fileData: string, mimeType: string): Promise<StandardProcedureAssessment> => {
+    const ai = getAI();
     const filePart = {
         inlineData: {
             mimeType: mimeType,
@@ -1362,6 +1400,7 @@ export const assessProcedureFromManual = async (procedureName: string, fileData:
 };
 
 export const generateTrainingScenario = async (kpi: KPI): Promise<TrainingScenario> => {
+    const ai = getAI();
     const cacheKey = `training_scenario_${kpi.id}`;
     const cachedData = getFromCache<TrainingScenario>(cacheKey);
     if (cachedData) {
@@ -1437,7 +1476,7 @@ export const generateTrainingScenario = async (kpi: KPI): Promise<TrainingScenar
         config: {
             responseMimeType: "application/json",
             responseSchema: schema,
-            systemInstruction: "أنت خبير عالمي في تصميم برامج التدريب لقطاع الطيران. قم بالرد بتنسيق JSON حصريًا وباللغة العربية."
+            systemInstruction: "أنت خبير عالمي في تصميم برامج التدريب لقطاع الطيران. قم بالرد بتنسيق JSON حصريًا باللغة العربية."
         }
     });
 
