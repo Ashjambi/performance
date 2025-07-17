@@ -1,9 +1,8 @@
 
-
 import React, { useMemo, useContext } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { ChartBarIcon } from '@heroicons/react/24/outline';
-import { PieChart, Pie, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 import { AppStateContext } from '../context/AppContext.tsx';
 import { calculateKpiScore } from '../data.tsx';
 
@@ -16,16 +15,16 @@ const getScoreColor = (score) => {
 type CustomTooltipProps = {
   active?: boolean;
   payload?: any[];
+  label?: string;
 };
 
-const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {  
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {  
   if (active && payload && payload.length) {
     const data = payload[0];
     const score = data.value;
-    const name = data.name;
     return (
       <div className="bg-slate-900/80 backdrop-blur-sm p-3 border border-slate-700 rounded-lg shadow-xl text-sm">
-        <p className="text-slate-200 font-bold mb-2">{name}</p>
+        <p className="text-slate-200 font-bold mb-2">{label}</p>
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: getScoreColor(score) }}></span>
           <p className="text-slate-300">
@@ -69,7 +68,7 @@ export const KpiDrilldownModal = ({ isOpen, onClose, kpi }: KpiDrilldownModalPro
         return null;
       })
       .filter((item): item is { name: string; score: number } => item !== null)
-      .sort((a, b) => b.score - a.score);
+      .sort((a, b) => a.score - b.score); // Sort ascending for horizontal bar chart display
     return data;
   }, [kpi, managers]);
 
@@ -81,7 +80,7 @@ export const KpiDrilldownModal = ({ isOpen, onClose, kpi }: KpiDrilldownModalPro
       onClick={onClose}
     >
       <div
-        className="bg-slate-800 rounded-xl shadow-2xl border border-slate-700 w-full max-w-2xl max-h-[90vh] flex flex-col transition-transform duration-300 scale-95 animate-scale-in"
+        className="bg-slate-800 rounded-xl shadow-2xl border border-slate-700 w-full max-w-4xl max-h-[90vh] flex flex-col transition-transform duration-300 scale-95 animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="flex items-center justify-between p-4 border-b border-slate-700 flex-shrink-0">
@@ -101,28 +100,39 @@ export const KpiDrilldownModal = ({ isOpen, onClose, kpi }: KpiDrilldownModalPro
         <div className="p-6 overflow-y-auto text-slate-300">
           {drilldownData.length > 0 ? (
             <>
-              <p className="text-slate-400 mb-4">يعرض هذا الرسم البياني أداء كل مدير على حدة لهذا المؤشر، مما يوضح المساهمين الرئيسيين في الأداء العام.</p>
-              <div style={{width: '100%', height: `350px`}}>
-                <ResponsiveContainer>
-                    <PieChart>
-                        <Pie
-                            data={drilldownData}
-                            dataKey="score"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            innerRadius={70}
-                            labelLine={false}
-                            paddingAngle={5}
-                        >
+              <p className="text-slate-400 mb-6">يعرض هذا الرسم البياني مقارنة أداء كل مدير لهذا المؤشر. يشير الخط المرجعي عند 100% إلى تحقيق الهدف.</p>
+              {/* Increase height based on number of managers to avoid cramped labels */}
+              <div style={{width: '100%', height: `${Math.max(300, drilldownData.length * 40)}px`}}> 
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                        layout="vertical"
+                        data={drilldownData}
+                        margin={{ top: 5, right: 30, left: 50, bottom: 5 }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                        <XAxis type="number" stroke="#94a3b8" domain={[0, 'dataMax + 10']} tick={{ fill: '#cbd5e1', fontSize: 12 }}/>
+                        <YAxis 
+                            type="category" 
+                            dataKey="name" 
+                            width={150} 
+                            stroke="#94a3b8"
+                            fontSize={12}
+                            tick={{ fill: '#cbd5e1' }}
+                            interval={0}
+                         />
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(100, 116, 139, 0.1)' }}/>
+                        <ReferenceLine 
+                            x={100} 
+                            stroke="#f87171" 
+                            strokeDasharray="4 4"
+                            label={{ value: "الهدف", position: "insideTopRight", fill: "#f87171", fontSize: 12 }}
+                        />
+                        <Bar dataKey="score" name="الأداء" barSize={20}>
                             {drilldownData.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={getScoreColor(entry.score)} />
                             ))}
-                        </Pie>
-                        <Tooltip content={<CustomTooltip />} />
-                        <Legend wrapperStyle={{fontSize: '12px', paddingTop: '20px', paddingBottom: '10px'}}/>
-                    </PieChart>
+                        </Bar>
+                    </BarChart>
                 </ResponsiveContainer>
               </div>
             </>
