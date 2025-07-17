@@ -1,11 +1,7 @@
 
 
-
-
-
-
-import { GoogleGenAI, Type } from "@google/genai";
-import type { Pillar, KPI, AnalysisResult, CalculationGuide, KPIHistory, Manager, ManagerRole, Recommendation, WhatIfAnalysis, RiskProfile, TimePeriod, ProcedureRiskAssessment, StandardProcedureAssessment } from '../data.tsx';
+import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
+import type { Pillar, KPI, AnalysisResult, CalculationGuide, KPIHistory, Manager, ManagerRole, Recommendation, WhatIfAnalysis, RiskProfile, TimePeriod, ProcedureRiskAssessment, StandardProcedureAssessment, TrainingScenario } from '../data.tsx';
 import { calculateKpiScore, calculatePillarScore, calculateManagerOverallScore, KPI_CATEGORIES, forecastStationScore } from '../data.tsx';
 import { toast } from 'react-hot-toast';
 
@@ -1110,64 +1106,64 @@ export const generateMeetingSummary = async (manager: Manager, timePeriod: TimeP
 };
 
 
-export const askConversational = async (question: string, context: any): Promise<string> => {
-    // Sanitize context to remove large, irrelevant data like history
-    const leanContext = {
-        currentView: context.currentView,
-        selectedManagerId: context.selectedManagerId,
-        managers: context.managers.map((manager: Manager) => ({
-            id: manager.id,
-            name: manager.name,
-            department: manager.department,
-            role: manager.role,
-            overallScore: calculateManagerOverallScore(manager.pillars), // Add calculated score for better context
-            pillars: manager.pillars.map((pillar: Pillar) => ({
-                id: pillar.id,
-                name: pillar.name,
-                weight: pillar.weight,
-                pillarScore: calculatePillarScore(pillar),
-                kpis: pillar.kpis.map((kpi: KPI) => ({
-                    id: kpi.id,
-                    name: kpi.name,
-                    value: kpi.value,
-                    target: kpi.target,
-                    unit: kpi.unit,
-                    lowerIsBetter: kpi.lowerIsBetter,
-                    kpiScore: Math.round(calculateKpiScore(kpi))
-                }))
-            }))
-        }))
+export const askConversational = async (question: string, context: any, useGoogleSearch: boolean): Promise<GenerateContentResponse> => {
+    let prompt: string;
+    const config: any = {
+        temperature: 0.2,
     };
 
-    const prompt = `
-        أنت مساعد ذكاء اصطناعي خبير ومتخصص في تحليل بيانات الأداء لشركات المناولة الأرضية. اسمك "Gemini".
-        مهمتك هي الإجابة على أسئلة المستخدم باللغة العربية بناءً على بيانات الأداء الحالية التي سأوفرها لك في تنسيق JSON.
+    if (useGoogleSearch) {
+        config.tools = [{ googleSearch: {} }];
+        config.systemInstruction = "أنت مساعد بحث خبير. أجب على سؤال المستخدم باللغة العربية بناءً على نتائج البحث. كن شاملاً وموجزاً، واستشهد بالمصادر التي استخدمتها.";
+        prompt = question;
+    } else {
+        config.systemInstruction = "أنت مساعد ذكاء اصطناعي خبير ومتخصص في تحليل بيانات الأداء لشركات المناولة الأرضية. اسمك \"Gemini\".\nيجب أن تكون جميع إجاباتك باللغة العربية الفصحى.\nاستند في إجاباتك **حصريًا** على البيانات المتوفرة في JSON. لا تخترع أي معلومات.\nإذا كان السؤال لا يمكن الإجابة عليه من البيانات المتاحة لدي، أجب بـ \"لا يمكنني الإجابة على هذا السؤال من البيانات المتاحة لدي.\"\nقدم إجابات مختصرة ومباشرة وذات رؤية تحليلية.\nاستخدم تنسيق الماركداون (Markdown) لجعل إجاباتك واضحة ومنظمة (مثل القوائم النقطية، النص الغامق، الجداول إذا لزم الأمر).";
+        
+        // Sanitize context to remove large, irrelevant data like history
+        const leanContext = {
+            currentView: context.currentView,
+            selectedManagerId: context.selectedManagerId,
+            managers: context.managers.map((manager: Manager) => ({
+                id: manager.id,
+                name: manager.name,
+                department: manager.department,
+                role: manager.role,
+                overallScore: calculateManagerOverallScore(manager.pillars),
+                pillars: manager.pillars.map((pillar: Pillar) => ({
+                    id: pillar.id,
+                    name: pillar.name,
+                    weight: pillar.weight,
+                    pillarScore: calculatePillarScore(pillar),
+                    kpis: pillar.kpis.map((kpi: KPI) => ({
+                        id: kpi.id,
+                        name: kpi.name,
+                        value: kpi.value,
+                        target: kpi.target,
+                        unit: kpi.unit,
+                        lowerIsBetter: kpi.lowerIsBetter,
+                        kpiScore: Math.round(calculateKpiScore(kpi))
+                    }))
+                }))
+            }))
+        };
 
-        البيانات الحالية:
-        \`\`\`json
-        ${JSON.stringify(leanContext, null, 2)}
-        \`\`\`
+        prompt = `
+            البيانات الحالية:
+            \`\`\`json
+            ${JSON.stringify(leanContext, null, 2)}
+            \`\`\`
 
-        يرجى اتباع هذه القواعد بدقة:
-        1.  يجب أن تكون جميع إجاباتك باللغة العربية الفصحى.
-        2.  استند في إجاباتك **حصريًا** على البيانات المتوفرة في JSON. لا تخترع أي معلومات.
-        3.  إذا كان السؤال لا يمكن الإجابة عليه من البيانات المتاحة لدي، أجب بـ "لا يمكنني الإجابة على هذا السؤال من البيانات المتاحة لدي."
-        4.  قدم إجابات مختصرة ومباشرة وذات رؤية تحليلية.
-        5.  استخدم تنسيق الماركداون (Markdown) لجعل إجاباتك واضحة ومنظمة (مثل القوائم النقطية، النص الغامق، الجداول إذا لزم الأمر).
-
-        سؤال المستخدم: "${question}"
-    `;
+            سؤال المستخدم: "${question}"
+        `;
+    }
     
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
-        config: {
-            systemInstruction: "أنت مساعد ذكاء اصطناعي خبير في تحليل بيانات الأداء. قم بالرد باللغة العربية.",
-            temperature: 0.2, // Lower temperature for more factual, less creative answers based on data.
-        }
+        config: config
     });
 
-    return response.text;
+    return response;
 };
 
 export const generateDiscrepancyAnalysis = async (procedureText: string, fileData: string, mimeType: string): Promise<ProcedureRiskAssessment> => {
@@ -1363,4 +1359,90 @@ export const assessProcedureFromManual = async (procedureName: string, fileData:
 
     const jsonText = response.text.trim();
     return JSON.parse(jsonText);
+};
+
+export const generateTrainingScenario = async (kpi: KPI): Promise<TrainingScenario> => {
+    const cacheKey = `training_scenario_${kpi.id}`;
+    const cachedData = getFromCache<TrainingScenario>(cacheKey);
+    if (cachedData) {
+        toast.success("تم استرجاع سيناريو التدريب من الذاكرة المؤقتة.");
+        return cachedData;
+    }
+
+    const prompt = `
+        أنت خبير عالمي في تطوير وتصميم برامج التدريب لقطاع الطيران، متخصص في عمليات المناولة الأرضية.
+        مهمتك هي إنشاء سيناريو تدريبي تفاعلي وواقعي لموظفي العمليات، بهدف تحسين أدائهم في مؤشر أداء رئيسي معين.
+
+        **معلومات المؤشر:**
+        - **اسم المؤشر:** ${kpi.name}
+        - **أهمية المؤشر:** ${kpi.tooltip.importance}
+        - **الهدف:** ${kpi.target} (${kpi.lowerIsBetter ? 'القيمة الأقل أفضل' : 'القيمة الأعلى أفضل'})
+
+        **المطلوب:**
+        قم بإنشاء سيناريو تدريبي شامل باللغة العربية بناءً على هذا المؤشر. يجب أن يكون السيناريو قابلاً للاستخدام في جلسة تدريبية تفاعلية.
+        
+        **يجب أن يكون الرد بتنسيق JSON حصريًا وفقًا للهيكل التالي:**
+        1.  **title**: عنوان جذاب للسيناريو التدريبي.
+        2.  **learning_objective**: هدف تعليمي واضح ومحدد. ماذا يجب أن يكون المتدرب قادرًا على فعله بعد هذا التدريب؟
+        3.  **scenario_description**: وصف مفصل ومحبوك لسيناريو واقعي يحدث في ساحة المطار ويتحدى المتدربين في المجال المتعلق بالمؤشر. (مثال: طقس سيء، ضغط وقت، معدات غير متوفرة، تواصل غير واضح).
+        4.  **interactive_steps**: قائمة من 2 إلى 3 خطوات تفاعلية. كل خطوة يجب أن تحتوي على:
+            - **step_title**: عنوان للخطوة.
+            - **situation**: وصف لموقف معين ضمن السيناريو.
+            - **question**: سؤال مباشر للمتدرب يضعه في موقف اتخاذ قرار.
+            - **options**: قائمة من 3 خيارات (إجابات محتملة)، واحدة منها فقط هي الصحيحة. لكل خيار:
+                - **option_text**: نص الخيار.
+                - **is_correct**: قيمة بوليانية (true/false).
+                - **feedback**: تغذية راجعة تشرح لماذا هذا الخيار صحيح أو خاطئ.
+        5.  **debrief_points**: قائمة من 3 إلى 4 نقاط رئيسية لمناقشتها مع المتدربين بعد انتهاء السيناريو لترسيخ المفاهيم (نقاط الاستخلاص).
+    `;
+    
+    const schema: any = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING, description: "عنوان السيناريو التدريبي باللغة العربية." },
+            learning_objective: { type: Type.STRING, description: "الهدف التعليمي من السيناريو باللغة العربية." },
+            scenario_description: { type: Type.STRING, description: "وصف مفصل للسيناريو باللغة العربية." },
+            interactive_steps: {
+                type: Type.ARRAY,
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        step_title: { type: Type.STRING, description: "عنوان الخطوة التفاعلية." },
+                        situation: { type: Type.STRING, description: "وصف الموقف في هذه الخطوة." },
+                        question: { type: Type.STRING, description: "السؤال الموجه للمتدرب." },
+                        options: {
+                            type: Type.ARRAY,
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    option_text: { type: Type.STRING, description: "نص الخيار." },
+                                    is_correct: { type: Type.BOOLEAN, description: "هل هذا هو الخيار الصحيح؟" },
+                                    feedback: { type: Type.STRING, description: "التغذية الراجعة لهذا الخيار." }
+                                },
+                                required: ["option_text", "is_correct", "feedback"]
+                            }
+                        }
+                    },
+                    required: ["step_title", "situation", "question", "options"]
+                }
+            },
+            debrief_points: { type: Type.ARRAY, items: { type: Type.STRING }, description: "نقاط رئيسية لمناقشتها بعد السيناريو." }
+        },
+        required: ["title", "learning_objective", "scenario_description", "interactive_steps", "debrief_points"]
+    };
+
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: schema,
+            systemInstruction: "أنت خبير عالمي في تصميم برامج التدريب لقطاع الطيران. قم بالرد بتنسيق JSON حصريًا وباللغة العربية."
+        }
+    });
+
+    const jsonText = response.text.trim();
+    const result = JSON.parse(jsonText);
+    setInCache(cacheKey, result);
+    return result;
 };

@@ -209,6 +209,24 @@ export type Alert = {
     isRead: boolean;
 };
 
+// --- Training Scenario ---
+export type TrainingScenario = {
+  title: string;
+  learning_objective: string;
+  scenario_description: string;
+  interactive_steps: {
+    step_title: string;
+    situation: string;
+    question: string;
+    options: {
+      option_text: string;
+      is_correct: boolean;
+      feedback: string;
+    }[];
+  }[];
+  debrief_points: string[];
+};
+
 // =================================================================================
 // SECTION: UTILITY FUNCTIONS
 // =================================================================================

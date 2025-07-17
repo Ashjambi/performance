@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
-import { CalculatorIcon, ArrowTrendingUpIcon, CpuChipIcon, DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { CalculatorIcon, ArrowTrendingUpIcon, CpuChipIcon, DocumentMagnifyingGlassIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
 
 type KpiCardActionsProps = {
     onHowToCalculate: () => void;
     onTrend: () => void;
     onForecast: () => void;
     onRca?: () => void; // Optional RCA handler
+    onTrainingScenario: () => void;
 };
 
-export const KpiCardActions = ({ onHowToCalculate, onTrend, onForecast, onRca }: KpiCardActionsProps) => {
+export const KpiCardActions = ({ onHowToCalculate, onTrend, onForecast, onRca, onTrainingScenario }: KpiCardActionsProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -72,6 +73,14 @@ export const KpiCardActions = ({ onHowToCalculate, onTrend, onForecast, onRca }:
                         >
                             <CpuChipIcon className="h-5 w-5" />
                             <span>التنبؤ المستقبلي</span>
+                        </button>
+                         <button
+                            onClick={() => handleActionClick(onTrainingScenario)}
+                            className="w-full text-right flex items-center gap-3 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-cyan-400"
+                            role="menuitem"
+                        >
+                            <AcademicCapIcon className="h-5 w-5" />
+                            <span>إنشاء سيناريو تدريبي</span>
                         </button>
                         {onRca && (
                             <>

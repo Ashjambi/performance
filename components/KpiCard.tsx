@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useContext } from 'react';
 import type { KPI, TimePeriod } from '../data.tsx';
 import { calculateKpiScore, RISK_KPI_IDS } from '../data.tsx';
@@ -8,6 +9,7 @@ import { HowToCalculateModal } from './HowToCalculateModal.tsx';
 import { HistoricalTrendModal } from './HistoricalTrendModal.tsx';
 import { ForecastModal } from './ForecastModal.tsx';
 import { RootCauseAnalysisModal } from './RootCauseAnalysisModal.tsx';
+import { TrainingScenarioModal } from './TrainingScenarioModal.tsx';
 import { AppDispatchContext } from '../context/AppContext.tsx';
 import { KpiCardActions } from './KpiCardActions.tsx';
 
@@ -44,6 +46,7 @@ export const KpiCard = ({ kpi, pillarId, currentTimePeriod }: KpiCardProps) => {
   const [isTrendModalOpen, setIsTrendModalOpen] = useState(false);
   const [isForecastModalOpen, setIsForecastModalOpen] = useState(false);
   const [isRcaModalOpen, setIsRcaModalOpen] = useState(false);
+  const [isTrainingModalOpen, setIsTrainingModalOpen] = useState(false);
   const [isInfoExpanded, setIsInfoExpanded] = useState(false);
   
   const isEditable = currentTimePeriod === 'monthly';
@@ -146,6 +149,7 @@ export const KpiCard = ({ kpi, pillarId, currentTimePeriod }: KpiCardProps) => {
                 onTrend={() => setIsTrendModalOpen(true)}
                 onForecast={() => setIsForecastModalOpen(true)}
                 onRca={showRcaButton ? () => setIsRcaModalOpen(true) : undefined}
+                onTrainingScenario={() => setIsTrainingModalOpen(true)}
             />
           </div>
         </div>
@@ -213,6 +217,11 @@ export const KpiCard = ({ kpi, pillarId, currentTimePeriod }: KpiCardProps) => {
        <RootCauseAnalysisModal
         isOpen={isRcaModalOpen}
         onClose={() => setIsRcaModalOpen(false)}
+        kpi={kpi}
+      />
+      <TrainingScenarioModal
+        isOpen={isTrainingModalOpen}
+        onClose={() => setIsTrainingModalOpen(false)}
         kpi={kpi}
       />
     </>

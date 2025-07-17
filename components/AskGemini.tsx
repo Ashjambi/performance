@@ -6,10 +6,17 @@ import { askConversational } from '../services/geminiService.tsx';
 import { Spinner } from './Spinner.tsx';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import type { GenerateContentResponse } from '@google/genai';
+
+type Source = {
+    uri: string;
+    title: string;
+};
 
 type Message = {
     role: 'user' | 'model';
     content: string;
+    sources?: Source[];
 };
 
 type AskGeminiProps = {
@@ -22,6 +29,7 @@ export const AskGemini = ({ isOpen, onClose }: AskGeminiProps) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [useSearch, setUseSearch] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -39,8 +47,18 @@ export const AskGemini = ({ isOpen, onClose }: AskGeminiProps) => {
         setIsLoading(true);
 
         try {
-            const responseText = await askConversational(input, appState);
-            const modelMessage: Message = { role: 'model', content: responseText };
+            const response : GenerateContentResponse = await askConversational(input, appState, useSearch);
+            const text = response.text;
+            const rawChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
+            const sources = rawChunks
+                ?.map(chunk => chunk.web)
+                .filter((web): web is Source => !!web?.uri);
+
+            const modelMessage: Message = { 
+                role: 'model', 
+                content: text || 'لقد وجدت بعض المصادر ذات الصلة، يمكنك الاطلاع عليها أدناه.',
+                sources: sources && sources.length > 0 ? sources : undefined
+            };
             setMessages(prev => [...prev, modelMessage]);
         } catch (error) {
             console.error("Error asking Gemini:", error);
@@ -63,6 +81,7 @@ export const AskGemini = ({ isOpen, onClose }: AskGeminiProps) => {
             setMessages([]);
             setInput('');
             setIsLoading(false);
+            setUseSearch(false);
         } else {
              setMessages([{
                 role: 'model',
@@ -99,6 +118,20 @@ export const AskGemini = ({ isOpen, onClose }: AskGeminiProps) => {
                                 <div className="prose prose-sm prose-invert prose-p:my-0 prose-ul:my-2 prose-ol:my-2 prose-headings:my-2 text-white">
                                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                                 </div>
+                                {msg.sources && msg.sources.length > 0 && (
+                                    <div className="mt-3 pt-3 border-t border-slate-600">
+                                        <h4 className="text-xs font-bold text-slate-400 mb-2">المصادر:</h4>
+                                        <ul className="space-y-1">
+                                            {msg.sources.map((source, i) => (
+                                                <li key={i}>
+                                                    <a href={source.uri} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline text-xs block truncate" title={source.uri}>
+                                                        {i+1}. {source.title || source.uri}
+                                                    </a>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}
@@ -114,7 +147,7 @@ export const AskGemini = ({ isOpen, onClose }: AskGeminiProps) => {
                 </div>
 
                 {/* Input */}
-                <div className="p-4 border-t border-slate-700 flex-shrink-0">
+                <div className="p-4 border-t border-slate-700 flex-shrink-0 space-y-2">
                     <div className="flex items-center gap-2">
                         <input
                             type="text"
@@ -132,6 +165,22 @@ export const AskGemini = ({ isOpen, onClose }: AskGeminiProps) => {
                         >
                             <PaperAirplaneIcon className="h-5 w-5" />
                         </button>
+                    </div>
+                     <div className="flex items-center justify-end pe-2">
+                         <label htmlFor="use-search" className="flex items-center gap-2 cursor-pointer text-xs text-slate-400">
+                             <div className="relative">
+                                <input 
+                                    type="checkbox" 
+                                    id="use-search" 
+                                    checked={useSearch} 
+                                    onChange={(e) => setUseSearch(e.target.checked)}
+                                    className="sr-only"
+                                />
+                                <div className="block bg-slate-600 w-9 h-5 rounded-full"></div>
+                                <div className={`dot absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform ${useSearch ? 'translate-x-full bg-cyan-400' : ''}`}></div>
+                            </div>
+                            <span>البحث في الويب (Google)</span>
+                        </label>
                     </div>
                 </div>
                  <style>{`
