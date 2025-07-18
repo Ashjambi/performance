@@ -1,4 +1,5 @@
 
+
 import React, { useState, useContext } from 'react';
 import { XMarkIcon, PlusCircleIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { AppDispatchContext, AppStateContext } from '../context/AppContext.tsx';
@@ -126,10 +127,6 @@ export const AddActionPlanModal = ({ isOpen, onClose }: AddActionPlanModalProps)
             حفظ الخطة
         </button>
         </footer>
-        <style>{`
-            @keyframes scale-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-            .animate-scale-in { animation: scale-in 0.3s ease-out forwards; }
-        `}</style>
       </div>
     </div>
   );

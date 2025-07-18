@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import type { Pillar, TimePeriod } from '../data.tsx';
@@ -62,13 +63,6 @@ export const PillarDetailModal = ({ isOpen, onClose, pillar, currentTimePeriod }
           </button>
         </footer>
       </div>
-      <style>{`
-        @keyframes scale-in {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        .animate-scale-in { animation: scale-in 0.3s ease-out forwards; }
-      `}</style>
     </div>
   );
 };

@@ -1,5 +1,7 @@
 
 
+
+
 import React, { useState, useEffect, useContext } from 'react';
 import { XMarkIcon, PlusCircleIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import { DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline';
@@ -163,14 +165,6 @@ export const RootCauseAnalysisModal = ({ isOpen, onClose, kpi }: RootCauseAnalys
           </button>
         </footer>
       </div>
-      <style>{`
-        @keyframes scale-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .animate-scale-in { animation: scale-in 0.3s ease-out forwards; }
-        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-        .animate-fade-in { animation: fade-in 0.5s ease-in-out forwards; }
-        details .details-arrow { transition: transform 0.2s; }
-        details[open] .details-arrow { transform: rotate(180deg); }
-      `}</style>
     </div>
   );
 };

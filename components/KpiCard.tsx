@@ -1,5 +1,7 @@
 
 
+
+
 import React, { useState, useEffect, useContext } from 'react';
 import type { KPI, TimePeriod } from '../data.tsx';
 import { calculateKpiScore, RISK_KPI_IDS } from '../data.tsx';
@@ -190,13 +192,6 @@ export const KpiCard = ({ kpi, pillarId, currentTimePeriod }: KpiCardProps) => {
                 </div>
             </div>
         )}
-         <style>{`
-            @keyframes fade-in-down {
-              from { opacity: 0; transform: translateY(-5px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            .animate-fade-in-down { animation: fade-in-down 0.3s ease-out forwards; }
-        `}</style>
       </div>
       <HowToCalculateModal
         isOpen={isHowToModalOpen}

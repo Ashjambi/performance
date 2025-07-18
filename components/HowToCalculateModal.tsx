@@ -1,5 +1,7 @@
 
 
+
+
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { CalculatorIcon, LightBulbIcon, SparklesIcon, ScaleIcon, ClockIcon } from '@heroicons/react/24/outline';
@@ -256,19 +258,6 @@ export const HowToCalculateModal = ({ isOpen, onClose, kpi, pillarId }: HowToCal
             </button>
         </footer>
       </div>
-      <style>{`
-        @keyframes scale-in {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        .animate-scale-in { animation: scale-in 0.3s ease-out forwards; }
-
-        @keyframes fade-in {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .animate-fade-in { animation: fade-in 0.5s ease-in-out forwards; }
-      `}</style>
     </div>
   );
 };

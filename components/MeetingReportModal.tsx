@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useContext } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -140,55 +141,6 @@ export const MeetingReportModal = ({ isOpen, onClose, manager }: MeetingReportMo
                     </div>
 
                 </div>
-                
-                 <style>{`
-                    @keyframes scale-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-                    .animate-scale-in { animation: scale-in 0.3s ease-out forwards; }
-                    .prose-invert { --tw-prose-body: #d1d5db; --tw-prose-headings: #ffffff; --tw-prose-links: #38bdf8; --tw-prose-bold: #ffffff; }
-                    .recharts-polar-angle-axis-tick-value tspan {
-                        font-family: 'Cairo', sans-serif !important;
-                    }
-                    
-                    @media print {
-                      body {
-                        background-color: #fff !important;
-                      }
-                      .no-print { display: none !important; }
-                      .printable-area {
-                        position: absolute;
-                        left: 0;
-                        top: 0;
-                        width: 100%;
-                        height: 100%;
-                        padding: 20px;
-                        background-color: #ffffff !important;
-                        color: #000000 !important;
-                        --tw-prose-body: #374151;
-                        --tw-prose-headings: #111827;
-                      }
-                      .printable-area .bg-slate-800, .printable-area .bg-slate-900 {
-                          background-color: #f3f4f6 !important; /* gray-100 */
-                          border: 1px solid #e5e7eb !important; /* gray-200 */
-                      }
-                       .printable-area .text-white, .printable-area .text-slate-200, .printable-area .text-slate-300 { color: #1f2937 !important; /* gray-800 */ }
-                       .printable-area .text-slate-400 { color: #4b5563 !important; /* gray-600 */ }
-                       .printable-area .text-cyan-400 { color: #0891b2 !important; /* cyan-600 */}
-                       .recharts-wrapper .recharts-surface, .recharts-wrapper .recharts-surface * {
-                           fill: #000 !important;
-                           stroke: #374151 !important;
-                       }
-                       .recharts-wrapper .recharts-polar-grid-concentric-polygon {
-                           stroke: #e5e7eb !important;
-                       }
-                       .recharts-wrapper .recharts-radar, .recharts-wrapper .recharts-radar-polygon {
-                            stroke: #0891b2 !important;
-                            fill: #0891b2 !important;
-                       }
-                       .recharts-wrapper .recharts-polar-angle-axis-tick-value tspan {
-                            fill: #374151 !important;
-                       }
-                    }
-                `}</style>
             </div>
         </div>
     );

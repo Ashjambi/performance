@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState } from 'react';
 import { XMarkIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
 import type { AnalysisResult, Recommendation } from '../data.tsx';
@@ -125,19 +126,6 @@ export const AnalysisModal = ({
             </button>
         </footer>
       </div>
-      <style>{`
-        @keyframes scale-in {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        .animate-scale-in { animation: scale-in 0.3s ease-out forwards; }
-
-        @keyframes fade-in {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .animate-fade-in { animation: fade-in 0.5s ease-in-out forwards; }
-      `}</style>
     </div>
   );
 };

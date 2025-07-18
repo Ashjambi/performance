@@ -124,13 +124,6 @@ export const AddManagerModal = ({ isOpen, onClose, roles }: AddManagerModalProps
           </footer>
         </form>
       </div>
-      <style>{`
-        @keyframes scale-in {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        .animate-scale-in { animation: scale-in 0.3s ease-out forwards; }
-      `}</style>
     </div>
   );
 };

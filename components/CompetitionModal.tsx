@@ -20,7 +20,7 @@ const Podium = ({ results }: { results: CompetitionResult[] }) => {
     const podiumRanks = ['2', '1', '3'];
 
     return (
-         <div className="flex justify-center items-end gap-2 mt-8 animate-fade-in">
+         <div className="flex justify-center items-end gap-2 mt-8 animate-fade-in-up">
             {podiumOrder.map((result, index) => (
                 <div key={result.name} className="text-center w-1/3">
                     <p className="font-bold text-white truncate">{result.name}</p>
@@ -176,7 +176,7 @@ export const CompetitionModal = ({ isOpen, onClose }) => {
                                     </div>
 
                                     {(winnerAnalysis || announcement) && (
-                                        <div className="mt-6 space-y-4 text-start animate-fade-in">
+                                        <div className="mt-6 space-y-4 text-start animate-fade-in-up">
                                             {winnerAnalysis && (
                                                 <div className="p-4 bg-slate-900/50 border border-cyan-500/30 rounded-lg">
                                                     <h4 className="font-bold text-cyan-400 mb-2">تحليل الأداء المتميز:</h4>
@@ -228,12 +228,6 @@ export const CompetitionModal = ({ isOpen, onClose }) => {
                         </>
                     )}
                 </footer>
-                 <style>{`
-                    @keyframes scale-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-                    .animate-scale-in { animation: scale-in 0.3s ease-out forwards; }
-                    @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-                    .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
-                `}</style>
             </div>
         </div>
     );

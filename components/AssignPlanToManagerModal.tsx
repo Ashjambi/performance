@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { XMarkIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 import type { Recommendation, Manager } from '../data.tsx';
@@ -93,10 +94,6 @@ export const AssignPlanToManagerModal = ({ isOpen, onClose, onAssign, recommenda
             إسناد وإنشاء الخطة
           </button>
         </footer>
-        <style>{`
-            @keyframes scale-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-            .animate-scale-in { animation: scale-in 0.3s ease-out forwards; }
-        `}</style>
       </div>
     </div>
   );

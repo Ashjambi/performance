@@ -164,12 +164,6 @@ export const ForecastModal = ({ isOpen, onClose, kpi }: ForecastModalProps) => {
           <button onClick={onClose} className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">إغلاق</button>
         </footer>
       </div>
-      <style>{`
-        @keyframes scale-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .animate-scale-in { animation: scale-in 0.3s ease-out forwards; }
-        @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-        .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
-      `}</style>
     </div>
   );
 };

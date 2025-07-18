@@ -80,13 +80,6 @@ export const AlertsPanel = ({ alerts, onClose }: AlertsPanelProps) => {
                     </div>
                 )}
             </div>
-             <style>{`
-                @keyframes fade-in-down {
-                    from { opacity: 0; transform: translateY(-10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                .animate-fade-in-down { animation: fade-in-down 0.2s ease-out forwards; }
-            `}</style>
         </div>
     );
 };

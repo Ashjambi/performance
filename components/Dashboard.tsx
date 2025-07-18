@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useContext, useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 import type { Pillar } from '../data.tsx';
@@ -61,7 +62,7 @@ export const Dashboard = () => {
       </div>
 
       {activeTab === 'pillars' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fade-in-up">
             {managerForDisplay.pillars.map((pillar) => (
             <PillarCard key={pillar.id} pillar={pillar} currentTimePeriod={currentTimePeriod}/>
             ))}
@@ -69,18 +70,11 @@ export const Dashboard = () => {
       )}
 
       {activeTab === 'plans' && (
-          <div className="animate-fade-in">
+          <div className="animate-fade-in-up">
             <ActionPlans />
           </div>
       )}
 
-       <style>{`
-        @keyframes fade-in {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
-      `}</style>
     </div>
   );
 };

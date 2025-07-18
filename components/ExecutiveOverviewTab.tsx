@@ -190,13 +190,6 @@ export const ExecutiveOverviewTab = ({
     return (
         <>
         <div className="space-y-6 animate-fade-in">
-             <style>{`
-                .print-quality {
-                    transform: scale(1.2);
-                    transform-origin: top left;
-                    width: 83.33% !important; /* 1 / 1.2 */
-                }
-            `}</style>
             {/* Header Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-slate-800 rounded-lg p-5 shadow-lg border border-slate-700">

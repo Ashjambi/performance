@@ -1,0 +1,203 @@
+/* --- Base Styles & Fonts --- */
+body {
+  font-family: 'Cairo', sans-serif;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* --- Custom Components --- */
+.toast-container {
+  font-family: 'Cairo', sans-serif !important;
+}
+
+/* --- Custom Scrollbar --- */
+.header-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+.header-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.header-scroll::-webkit-scrollbar-thumb {
+  background-color: #475569; /* slate-600 */
+  border-radius: 20px;
+}
+
+/* --- Print Styles --- */
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background-color: #fff !important;
+  }
+  .no-print {
+      display: none !important;
+  }
+  .printable-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    --tw-prose-body: #374151;
+    --tw-prose-headings: #111827;
+  }
+  .printable-area .bg-slate-800, .printable-area .bg-slate-900 {
+      background-color: #f3f4f6 !important; /* gray-100 */
+      border: 1px solid #e5e7eb !important; /* gray-200 */
+  }
+   .printable-area .text-white, .printable-area .text-slate-200, .printable-area .text-slate-300 { color: #1f2937 !important; /* gray-800 */ }
+   .printable-area .text-slate-400 { color: #4b5563 !important; /* gray-600 */ }
+   .printable-area .text-cyan-400 { color: #0891b2 !important; /* cyan-600 */}
+   .recharts-wrapper .recharts-surface, .recharts-wrapper .recharts-surface * {
+       fill: #000 !important;
+       stroke: #374151 !important;
+   }
+   .recharts-wrapper .recharts-polar-grid-concentric-polygon {
+       stroke: #e5e7eb !important;
+   }
+   .recharts-wrapper .recharts-radar, .recharts-wrapper .recharts-radar-polygon {
+        stroke: #0891b2 !important;
+        fill: #0891b2 !important;
+   }
+   .recharts-wrapper .recharts-polar-angle-axis-tick-value tspan {
+        fill: #374151 !important;
+        font-family: 'Cairo', sans-serif !important;
+   }
+   /* Specific for training scenario print */
+    .training-section-title { 
+        font-size: 1.25rem; 
+        font-weight: bold; 
+        color: #0891b2; /* cyan-600 */
+        border-bottom: 2px solid #0e7490; 
+        padding-bottom: 5px; 
+        margin-bottom: 15px; 
+    }
+    .step-card { 
+        border: 1px solid #e5e7eb; 
+        border-radius: 8px; 
+        padding: 15px; 
+        margin-bottom: 15px;
+        background-color: #f9fafb; 
+        break-inside: avoid;
+    }
+    .feedback {
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 6px;
+    }
+    .feedback.correct {
+        background-color: #d1fae5;
+        border: 1px solid #6ee7b7;
+    }
+    .feedback.incorrect {
+        background-color: #fee2e2;
+        border: 1px solid #fca5a5;
+    }
+}
+
+/* --- Keyframe Animations --- */
+
+@keyframes pulse-slow {
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(56, 189, 248, 0.3);
+  }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-down {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes scale-in-up {
+    from { transform: scale(0.95) translateY(20px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* --- Animation Classes --- */
+.animate-pulse-slow {
+  animation: pulse-slow 3s infinite;
+}
+
+.animate-fade-in { 
+  animation: fade-in 0.5s ease-out forwards; 
+}
+
+.animate-fade-in-up { 
+  animation: fade-in-up 0.5s ease-out forwards; 
+}
+
+.animate-fade-in-down { 
+  animation: fade-in-down 0.3s ease-out forwards; 
+}
+
+.animate-scale-in { 
+  animation: scale-in 0.3s ease-out forwards; 
+}
+
+.animate-scale-in-up { 
+  animation: scale-in-up 0.3s ease-out forwards; 
+}
+
+
+/* --- Component-specific overrides --- */
+/* For recharts text in modals */
+.recharts-polar-angle-axis-tick-value tspan {
+    font-family: 'Cairo', sans-serif !important;
+}
+
+/* For AskGemini modal prose styles */
+.prose-invert {
+    --tw-prose-body: #d1d5db;
+    --tw-prose-headings: #ffffff;
+    --tw-prose-lead: #e5e7eb;
+    --tw-prose-links: #38bdf8;
+    --tw-prose-bold: #ffffff;
+    --tw-prose-counters: #9ca3af;
+    --tw-prose-bullets: #6b7280;
+    --tw-prose-hr: #4b5563;
+    --tw-prose-quotes: #f9fafb;
+    --tw-prose-quote-borders: #4b5563;
+    --tw-prose-captions: #9ca3af;
+    --tw-prose-code: #ffffff;
+    --tw-prose-pre-code: #d1d5db;
+    --tw-prose-pre-bg: #1f2937;
+    --tw-prose-th-borders: #4b5563;
+    --tw-prose-td-borders: #374151;
+}
+
+/* For RCA Modal details arrow */
+details .details-arrow { 
+    transition: transform 0.2s; 
+}
+details[open] .details-arrow { 
+    transform: rotate(180deg); 
+}
+
+/* For Training Scenario Modal */
+.training-section-title { 
+    font-size: 1.1rem; 
+    font-weight: bold; 
+    color: #22d3ee; /* cyan-400 */
+    border-bottom: 1px solid #334155; /* slate-700 */
+    padding-bottom: 8px; 
+    margin-bottom: 12px; 
+}

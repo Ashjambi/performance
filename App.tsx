@@ -126,17 +126,6 @@ const App = () => {
         <SparklesIcon className="h-7 w-7" />
       </button>
 
-      <style>{`
-        @keyframes pulse-slow {
-          50% {
-            transform: scale(1.05);
-            box-shadow: 0 0 0 10px rgba(56, 189, 248, 0.3);
-          }
-        }
-        .animate-pulse-slow {
-          animation: pulse-slow 3s infinite;
-        }
-      `}</style>
     </div>
   );
 };
