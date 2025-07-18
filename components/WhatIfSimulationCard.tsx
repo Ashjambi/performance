@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useContext } from 'react';
+
+
+import React, { useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 import { LightBulbIcon, SparklesIcon, ArrowDownCircleIcon, ArrowUpCircleIcon, BanknotesIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { Spinner } from './Spinner.tsx';
-import { AppStateContext } from '../context/AppContext.tsx';
 import type { KPI, WhatIfAnalysis } from '../data.tsx';
 import { generateWhatIfAnalysis, API_KEY_ERROR_MESSAGE, isAiAvailable } from '../services/geminiService.tsx';
 
@@ -96,4 +97,67 @@ export const WhatIfSimulationCard = ({ managers, stationOverallScore }: WhatIfSi
                     <button
                         onClick={handleRunSimulation}
                         disabled={isLoading || !selectedKpiId || newValue === '' || !isAiAvailable}
-                        title={!isAiAvailable
+                        title={!isAiAvailable ? API_KEY_ERROR_MESSAGE : "تشغيل المحاكاة"}
+                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-cyan-500 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300 disabled:bg-slate-600 disabled:cursor-not-allowed"
+                    >
+                        <SparklesIcon className="h-5 w-5" />
+                        <span>تشغيل المحاكاة</span>
+                    </button>
+                </div>
+            </div>
+
+            {isLoading && (
+                <div className="flex justify-center items-center gap-2 p-4">
+                    <Spinner className="h-5 w-5" />
+                    <span>جاري تشغيل المحاكاة...</span>
+                </div>
+            )}
+
+            {analysisResult && (
+                <div className="mt-6 border-t border-slate-700 pt-6 space-y-6 animate-fade-in-up">
+                    <div className="bg-slate-900/50 p-4 rounded-lg border-l-4 border-cyan-500">
+                        <h4 className="font-bold text-cyan-400 mb-2">ملخص المحاكاة</h4>
+                        <p>{analysisResult.simulation_summary}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700 text-center">
+                            <h4 className="font-semibold text-slate-400 mb-2 flex items-center justify-center gap-2"><BanknotesIcon className="h-5 w-5"/>التأثير على الأداء العام للمحطة</h4>
+                            <div className="flex items-center justify-center gap-4">
+                                <span className="text-2xl font-bold text-slate-500 line-through">{analysisResult.overall_score_impact.from}%</span>
+                                <ArrowPathIcon className="h-6 w-6 text-cyan-400"/>
+                                <span className="text-4xl font-bold text-green-400">{analysisResult.overall_score_impact.to}%</span>
+                            </div>
+                        </div>
+
+                        <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
+                             <h4 className="font-semibold text-slate-400 mb-3 flex items-center gap-2">التأثيرات المتسلسلة</h4>
+                             <ul className="space-y-2 text-sm">
+                                {analysisResult.related_kpis_impact.map((impact, index) => (
+                                    <li key={index} className="flex items-start gap-2">
+                                        {impact.impact_description.includes('يتحسن') || impact.impact_description.includes('تحسن') ? 
+                                            <ArrowUpCircleIcon className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0"/> :
+                                            <ArrowDownCircleIcon className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0"/>
+                                        }
+                                        <div>
+                                            <span className="font-bold">{impact.kpi_name}:</span> {impact.impact_description}
+                                        </div>
+                                    </li>
+                                ))}
+                             </ul>
+                        </div>
+                    </div>
+
+                    <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
+                         <h4 className="font-semibold text-slate-400 mb-3 flex items-center gap-2">التوصيات</h4>
+                         <ul className="space-y-2 text-sm list-disc pl-5">
+                            {analysisResult.recommendations.map((rec, index) => (
+                                <li key={index}>{rec}</li>
+                            ))}
+                         </ul>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
