@@ -1,10 +1,4 @@
 
-
-
-
-
-
-
 import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
 import type { Pillar, KPI, AnalysisResult, CalculationGuide, KPIHistory, Manager, ManagerRole, Recommendation, WhatIfAnalysis, RiskProfile, TimePeriod, ProcedureRiskAssessment, StandardProcedureAssessment, TrainingScenario } from '../data.tsx';
 import { calculateKpiScore, calculatePillarScore, calculateManagerOverallScore, KPI_CATEGORIES, forecastStationScore } from '../data.tsx';
