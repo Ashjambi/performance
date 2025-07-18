@@ -7,8 +7,6 @@ export default defineConfig(({ mode }) => {
     base: '/',
     plugins: [react()],
     define: {
-      // Vite will replace `process.env.API_KEY` with the value of the API_KEY
-      // environment variable available during the build process.
       'process.env.API_KEY': JSON.stringify(process.env.API_KEY)
     }
   }

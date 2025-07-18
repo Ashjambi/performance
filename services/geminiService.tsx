@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 
 import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
 import type { Pillar, KPI, AnalysisResult, CalculationGuide, KPIHistory, Manager, ManagerRole, Recommendation, WhatIfAnalysis, RiskProfile, TimePeriod, ProcedureRiskAssessment, StandardProcedureAssessment, TrainingScenario } from '../data.tsx';
@@ -31,6 +32,7 @@ const setInCache = (key: string, data: any): void => {
 // --- End Caching Service ---
 
 // --- AI Initialization and Guard ---
+declare var process: { env: { [key: string]: string | undefined } };
 const apiKey = process.env.API_KEY;
 let ai: GoogleGenAI | null = null;
 export const API_KEY_ERROR_MESSAGE = "ميزات الذكاء الاصطناعي معطلة. لم يتم تكوين مفتاح الواجهة البرمجية (API Key).";
