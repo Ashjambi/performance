@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useContext } from 'react';
 import { XMarkIcon, PlusCircleIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import { DocumentMagnifyingGlassIcon } from '@heroicons/react/24/outline';
@@ -6,7 +7,7 @@ import { toast } from 'react-hot-toast';
 import type { KPI, Manager } from '../data.tsx';
 import { AppStateContext, AppDispatchContext } from '../context/AppContext.tsx';
 import { Spinner } from './Spinner.tsx';
-import { generateRootCauseAnalysis, generateActionPlanSteps } from '../services/geminiService.tsx';
+import { generateRootCauseAnalysis, generateActionPlanSteps, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 import type { RootCauseAnalysis } from '../services/geminiService.tsx';
 
 type RootCauseAnalysisModalProps = {
@@ -37,10 +38,11 @@ export const RootCauseAnalysisModal = ({ isOpen, onClose, kpi }: RootCauseAnalys
       try {
         const result = await generateRootCauseAnalysis(kpi, selectedManager);
         setAnalysis(result);
-      } catch (e) {
+      } catch (e: any) {
         console.error(e);
-        setError("حدث خطأ أثناء تحليل السبب الجذري. يرجى المحاولة مرة أخرى.");
-        toast.error("فشل تحليل السبب الجذري.");
+        const errorMessage = e.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : "حدث خطأ أثناء تحليل السبب الجذري. يرجى المحاولة مرة أخرى.";
+        setError(errorMessage);
+        toast.error(errorMessage);
       } finally {
         setIsLoading(false);
       }
@@ -69,9 +71,10 @@ export const RootCauseAnalysisModal = ({ isOpen, onClose, kpi }: RootCauseAnalys
           });
           toast.success('تم إنشاء خطة العمل بنجاح!', { id: toastId });
           onClose(); // Close modal after success
-      } catch (e) {
+      } catch (e: any) {
           console.error(e);
-          toast.error('فشل إنشاء خطة العمل.', { id: toastId });
+          const errorMessage = e.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : 'فشل إنشاء خطة العمل.';
+          toast.error(errorMessage, { id: toastId });
       } finally {
           setGeneratingPlanFor(null);
       }

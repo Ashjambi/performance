@@ -1,6 +1,10 @@
 
 
 
+
+
+
+
 import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
 import type { Pillar, KPI, AnalysisResult, CalculationGuide, KPIHistory, Manager, ManagerRole, Recommendation, WhatIfAnalysis, RiskProfile, TimePeriod, ProcedureRiskAssessment, StandardProcedureAssessment, TrainingScenario } from '../data.tsx';
 import { calculateKpiScore, calculatePillarScore, calculateManagerOverallScore, KPI_CATEGORIES, forecastStationScore } from '../data.tsx';
@@ -35,6 +39,8 @@ const setInCache = (key: string, data: any): void => {
 // --- AI Initialization and Guard ---
 const apiKey = process.env.API_KEY;
 let ai: GoogleGenAI | null = null;
+export const API_KEY_ERROR_MESSAGE = "ميزات الذكاء الاصطناعي معطلة. لم يتم تكوين مفتاح الواجهة البرمجية (API Key).";
+
 
 if (apiKey) {
   try {
@@ -47,10 +53,11 @@ if (apiKey) {
   console.warn("Gemini API key is not configured. AI features will be disabled.");
 }
 
+export const isAiAvailable = !!ai;
+
 const getAI = (): GoogleGenAI => {
     if (!ai) {
-        const errorMessage = "ميزات الذكاء الاصطناعي معطلة. لم يتم تكوين مفتاح الواجهة البرمجية (API Key).";
-        throw new Error(errorMessage);
+        throw new Error(API_KEY_ERROR_MESSAGE);
     }
     return ai;
 };

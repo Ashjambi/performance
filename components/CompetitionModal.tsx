@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo, useContext, useEffect } from 'react';
 import { XMarkIcon, TrophyIcon } from '@heroicons/react/24/solid';
 import { SparklesIcon } from '@heroicons/react/24/outline';
@@ -6,7 +7,7 @@ import { toast } from 'react-hot-toast';
 import { AppStateContext } from '../context/AppContext.tsx';
 import type { Manager } from '../data.tsx';
 import { getAvailableMonthsForCompetition, calculateManagerScoreForMonth, getManagerSnapshotForMonth } from '../data.tsx';
-import { generateCompetitionAnnouncement, generateWinnerAnalysis } from '../services/geminiService.tsx';
+import { generateCompetitionAnnouncement, generateWinnerAnalysis, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 import { Spinner } from './Spinner.tsx';
 
 type CompetitionResult = {
@@ -114,9 +115,10 @@ export const CompetitionModal = ({ isOpen, onClose }) => {
             setAnnouncement(announcementResponse.announcement);
             
             toast.success('تم إعداد التفاصيل بنجاح!', { id: toastId });
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            toast.error('فشل في إعداد التفاصيل.', { id: toastId });
+            const errorMessage = e.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : 'فشل في إعداد التفاصيل.';
+            toast.error(errorMessage, { id: toastId });
         } finally {
             setIsLoading(false);
         }

@@ -1,4 +1,5 @@
 
+
 import React, { useMemo, useState, useContext } from 'react';
 import type { Pillar, KPI, AnalysisResult, Recommendation } from '../data.tsx';
 import { calculateManagerOverallScore } from '../data.tsx';
@@ -8,7 +9,7 @@ import { AnalysisModal } from './AnalysisModal.tsx';
 import { Spinner } from './Spinner.tsx';
 import { SparklesIcon } from '@heroicons/react/24/outline';
 import { AppStateContext, AppDispatchContext } from '../context/AppContext.tsx';
-import { generatePerformanceAnalysis, generateActionPlanSteps } from '../services/geminiService.tsx';
+import { generatePerformanceAnalysis, generateActionPlanSteps, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 
 const getScoreColor = (score) => {
   if (score >= 90) return '#22c55e'; // green-500
@@ -45,20 +46,17 @@ export const OverallScore = ({ managerForDisplay }) => {
       setError(null);
       setAnalysisResult(null);
       
-      const analysisPromise = generatePerformanceAnalysis(managerForDisplay, currentTimePeriod);
-
-      toast.promise(analysisPromise, {
-        loading: 'يقوم الذكاء الاصطناعي بالتحليل...',
-        success: 'تم إنشاء التحليل بنجاح!',
-        error: 'فشل إنشاء التحليل.',
-      });
+      const toastId = toast.loading('يقوم الذكاء الاصطناعي بالتحليل...');
 
       try {
-          const result = await analysisPromise;
+          const result = await generatePerformanceAnalysis(managerForDisplay, currentTimePeriod);
           setAnalysisResult(result);
-      } catch (e) {
+          toast.success('تم إنشاء التحليل بنجاح!', { id: toastId });
+      } catch (e: any) {
           console.error(e);
-          setError("حدث خطأ أثناء الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى لاحقًا.");
+          const errorMessage = e.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : 'فشل إنشاء التحليل.';
+          setError(errorMessage);
+          toast.error(errorMessage, { id: toastId });
       } finally {
           setIsLoading(false);
       }
@@ -71,9 +69,10 @@ export const OverallScore = ({ managerForDisplay }) => {
         const { steps } = await generateActionPlanSteps(recommendation.text);
         dispatch({ type: 'ADD_ACTION_PLAN', payload: { managerId: selectedManager.id, recommendation: recommendation.text, steps }});
         toast.success('تم إنشاء خطة العمل وإضافتها بنجاح!', { id: toastId });
-    } catch(e) {
+    } catch(e: any) {
         console.error(e);
-        toast.error('فشل إنشاء خطة العمل.', { id: toastId });
+        const errorMessage = e.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : 'فشل إنشاء خطة العمل.';
+        toast.error(errorMessage, { id: toastId });
     }
   }
 

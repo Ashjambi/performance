@@ -1,8 +1,9 @@
 
+
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import { PaperAirplaneIcon, SparklesIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import { AppStateContext } from '../context/AppContext.tsx';
-import { askConversational } from '../services/geminiService.tsx';
+import { askConversational, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 import { Spinner } from './Spinner.tsx';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -60,9 +61,10 @@ export const AskGemini = ({ isOpen, onClose }: AskGeminiProps) => {
                 sources: sources && sources.length > 0 ? sources : undefined
             };
             setMessages(prev => [...prev, modelMessage]);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error asking Gemini:", error);
-            const errorMessage: Message = { role: 'model', content: 'عذراً، حدث خطأ أثناء التواصل مع المساعد. يرجى المحاولة مرة أخرى.' };
+            const content = error.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : 'عذراً، حدث خطأ أثناء التواصل مع المساعد. يرجى المحاولة مرة أخرى.';
+            const errorMessage: Message = { role: 'model', content };
             setMessages(prev => [...prev, errorMessage]);
         } finally {
             setIsLoading(false);

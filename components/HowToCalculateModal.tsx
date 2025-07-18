@@ -1,11 +1,12 @@
 
+
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { CalculatorIcon, LightBulbIcon, SparklesIcon, ScaleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 import type { KPI, CalculationGuide, CalculationFormula } from '../data.tsx';
 import { Spinner } from './Spinner.tsx';
-import { generateCalculationGuide } from '../services/geminiService.tsx';
+import { generateCalculationGuide, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 import { AppDispatchContext } from '../context/AppContext.tsx';
 
 type HowToCalculateModalProps = {
@@ -138,9 +139,10 @@ export const HowToCalculateModal = ({ isOpen, onClose, kpi, pillarId }: HowToCal
         const result = await generateCalculationGuide(kpi);
         setGuide(result);
 
-      } catch (e) {
+      } catch (e: any) {
         console.error(e);
-        setError("حدث خطأ أثناء إنشاء الدليل. يرجى المحاولة مرة أخرى.");
+        const errorMessage = e.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : "حدث خطأ أثناء إنشاء الدليل. يرجى المحاولة مرة أخرى.";
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }

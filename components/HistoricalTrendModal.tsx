@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { ArrowTrendingUpIcon, SparklesIcon } from '@heroicons/react/24/outline';
@@ -9,7 +10,7 @@ import type { KPI, KPIHistory } from '../data.tsx';
 import { calculatePeerAverageForKpi } from '../data.tsx';
 import { AppStateContext } from '../context/AppContext.tsx';
 import { Spinner } from './Spinner.tsx';
-import { generateTrendAnalysis } from '../services/geminiService.tsx';
+import { generateTrendAnalysis, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 
 type HistoricalTrendModalProps = {
   isOpen: boolean;
@@ -57,9 +58,10 @@ export const HistoricalTrendModal = ({ isOpen, onClose, kpi }: HistoricalTrendMo
       const result = await generateTrendAnalysis(kpi, selectedManagerId);
       setAnalysis(result);
       toast.success("تم إنشاء تحليل الاتجاه بنجاح");
-    } catch(e) {
+    } catch(e: any) {
       console.error(e);
-      toast.error("فشل إنشاء تحليل الاتجاه.");
+      const errorMessage = e.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : "فشل إنشاء تحليل الاتجاه.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -1,10 +1,11 @@
 
 
+
 import React, { useState, useContext } from 'react';
 import { toast } from 'react-hot-toast';
 import { BeakerIcon, ArrowUpOnSquareIcon, DocumentTextIcon, XCircleIcon, SparklesIcon, ArrowPathIcon, ScaleIcon, CheckBadgeIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import { Spinner } from './Spinner.tsx';
-import { generateDiscrepancyAnalysis, assessProcedureFromManual } from '../services/geminiService.tsx';
+import { generateDiscrepancyAnalysis, assessProcedureFromManual, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 import type { ProcedureRiskAssessment, StandardProcedureAssessment, IdentifiedRisk } from '../data.tsx';
 import { ROLES } from '../data.tsx';
 import { AppDispatchContext } from '../context/AppContext.tsx';
@@ -115,9 +116,14 @@ const RiskAssessmentTab = () => {
             toast.success('اكتمل التحليل بنجاح!', { id: toastId });
         } catch (err: any) {
             console.error("Analysis failed:", err);
-            const errorMessage = err.message.includes('quota') 
-                ? "تم تجاوز الحصة المتاحة. يرجى المحاولة مرة أخرى لاحقًا."
-                : "فشل في تحليل الملف. قد يكون نوع الملف غير مدعوم أو أن المحتوى غير واضح.";
+            let errorMessage;
+            if (err.message === API_KEY_ERROR_MESSAGE) {
+                errorMessage = API_KEY_ERROR_MESSAGE;
+            } else if (err.message.includes('quota')) {
+                errorMessage = "تم تجاوز الحصة المتاحة. يرجى المحاولة مرة أخرى لاحقًا.";
+            } else {
+                errorMessage = "فشل في تحليل الملف. قد يكون نوع الملف غير مدعوم أو أن المحتوى غير واضح.";
+            }
             setError(errorMessage);
             toast.error(errorMessage, { id: toastId, duration: 5000 });
         } finally {

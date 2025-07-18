@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { XMarkIcon, TrashIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
 import { SparklesIcon } from '@heroicons/react/24/outline';
@@ -7,7 +8,7 @@ import type { Manager, ManagerRole, ManagerRoleValue, Pillar, KPI } from '../dat
 import { ROLE_TEMPLATES, ALL_KPIS, ALL_PILLARS_MASTER_LIST, KPI_CATEGORIES, deepCopy, RISK_KPI_IDS } from '../data.tsx';
 import { AppDispatchContext } from '../context/AppContext.tsx';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal.tsx';
-import { generateKpiTargetSuggestion } from '../services/geminiService.tsx';
+import { generateKpiTargetSuggestion, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 import { Spinner } from './Spinner.tsx';
 
 type EditManagerModalProps = {
@@ -188,9 +189,10 @@ export const EditManagerModal = ({ isOpen, onClose, manager, roles }: EditManage
         handleKpiTargetChange(pillarId, kpi.id, String(result.suggested_target));
         setSuggestionResult({ kpiId: kpi.id, reasoning: result.reasoning, target: result.suggested_target });
         toast.success(`تم اقتراح هدف جديد: ${result.suggested_target}`, { id: toastId });
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
-        toast.error("فشل إنشاء اقتراح الهدف.", { id: toastId });
+        const errorMessage = e.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : "فشل إنشاء اقتراح الهدف.";
+        toast.error(errorMessage, { id: toastId });
     } finally {
         setSuggestingForKpi(null);
     }

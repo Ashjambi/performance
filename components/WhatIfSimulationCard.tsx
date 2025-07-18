@@ -1,11 +1,12 @@
 
+
 import React, { useState, useMemo, useContext } from 'react';
 import { toast } from 'react-hot-toast';
 import { LightBulbIcon, SparklesIcon, ArrowDownCircleIcon, ArrowUpCircleIcon, BanknotesIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { Spinner } from './Spinner.tsx';
 import { AppStateContext } from '../context/AppContext.tsx';
 import type { KPI, WhatIfAnalysis } from '../data.tsx';
-import { generateWhatIfAnalysis } from '../services/geminiService.tsx';
+import { generateWhatIfAnalysis, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 
 type WhatIfSimulationCardProps = {
     managers: any[];
@@ -48,111 +49,112 @@ export const WhatIfSimulationCard = ({ managers, stationOverallScore }: WhatIfSi
             const result = await generateWhatIfAnalysis(selectedKpi, parseFloat(newValue), stationOverallScore);
             setAnalysisResult(result);
             toast.success("اكتملت المحاكاة بنجاح!", { id: toastId });
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            toast.error("فشلت المحاكاة. يرجى المحاولة مرة أخرى.", { id: toastId });
+            const errorMessage = e.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : "فشلت المحاكاة. يرجى المحاولة مرة أخرى.";
+            toast.error(errorMessage, { id: toastId });
         } finally {
             setIsLoading(false);
         }
     };
-    
-    const handleReset = () => {
-        setAnalysisResult(null);
-        setSelectedKpiId('');
-        setNewValue('');
-    };
 
     return (
         <div className="bg-slate-800 rounded-lg shadow-lg p-5 border border-slate-700">
-            <div className="flex items-center mb-4">
-                <div className="p-2 bg-slate-700 rounded-md me-3"><LightBulbIcon className="h-6 w-6 text-cyan-400" /></div>
-                <h3 className="text-xl font-bold text-slate-100">محاكي الأداء المستقبلي (ماذا لو؟)</h3>
+            <h3 className="text-xl font-bold text-slate-100 mb-4 flex items-center gap-2">
+                <LightBulbIcon className="h-6 w-6 text-cyan-400" />
+                محاكاة "ماذا لو؟"
+            </h3>
+            <p className="text-sm text-slate-400 mb-4">
+                اختر مؤشر أداء رئيسي، أدخل قيمة جديدة مقترحة، وشاهد كيف يمكن أن يؤثر هذا التغيير على الأداء العام للمحطة والمؤشرات الأخرى ذات الصلة.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-6">
+                <div className="md:col-span-1">
+                    <label htmlFor="kpi-select" className="block text-sm font-medium text-slate-400 mb-1">اختر المؤشر</label>
+                    <select
+                        id="kpi-select"
+                        value={selectedKpiId}
+                        onChange={(e) => setSelectedKpiId(e.target.value)}
+                        className="w-full bg-slate-700 border border-slate-600 text-white rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    >
+                        <option value="">-- اختر مؤشر --</option>
+                        {allKpis.map(kpi => (
+                            <option key={kpi.id} value={kpi.id}>{kpi.name}</option>
+                        ))}
+                    </select>
+                </div>
+                <div className="md:col-span-1">
+                    <label htmlFor="new-value" className="block text-sm font-medium text-slate-400 mb-1">القيمة الجديدة المقترحة</label>
+                    <input
+                        id="new-value"
+                        type="number"
+                        value={newValue}
+                        onChange={(e) => setNewValue(e.target.value)}
+                        placeholder={selectedKpi ? `الحالي: ${selectedKpi.value}` : 'أدخل القيمة'}
+                        className="w-full bg-slate-700 border border-slate-600 text-white rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                </div>
+                <div className="md:col-span-1">
+                    <button
+                        onClick={handleRunSimulation}
+                        disabled={isLoading || !selectedKpiId || newValue === ''}
+                        className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-cyan-500 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300 disabled:bg-slate-600 disabled:cursor-not-allowed"
+                    >
+                        {isLoading ? <Spinner className="h-5 w-5" /> : <SparklesIcon className="h-5 w-5" />}
+                        {isLoading ? 'جاري التشغيل...' : 'شغل المحاكاة'}
+                    </button>
+                </div>
             </div>
 
-            {!analysisResult ? (
-                 <>
-                    <p className="text-slate-400 mb-4 text-sm">اختر مؤشرًا رئيسيًا واقترح تحسينًا جديدًا عليه، وسيقوم الذكاء الاصطناعي بتحليل التأثيرات المتوقعة على الأداء العام والمؤشرات الأخرى.</p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                        <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="kpi-select" className="block text-sm font-medium text-slate-400 mb-1">1. اختر المؤشر</label>
-                                <select 
-                                    id="kpi-select"
-                                    value={selectedKpiId}
-                                    onChange={e => setSelectedKpiId(e.target.value)}
-                                    className="w-full bg-slate-700 border border-slate-600 text-white rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                                >
-                                    <option value="" disabled>اختر مؤشر أداء رئيسي...</option>
-                                    {allKpis.map(kpi => <option key={kpi.id} value={kpi.id}>{kpi.name}</option>)}
-                                </select>
-                            </div>
-                            <div>
-                                <label htmlFor="new-value" className="block text-sm font-medium text-slate-400 mb-1">2. أدخل القيمة الجديدة</label>
-                                <input 
-                                    type="number" 
-                                    id="new-value"
-                                    value={newValue}
-                                    onChange={e => setNewValue(e.target.value)}
-                                    placeholder={selectedKpi ? `القيمة الحالية: ${selectedKpi.value}` : "أدخل قيمة..."}
-                                    disabled={!selectedKpiId}
-                                    className="w-full bg-slate-700 border border-slate-600 text-white rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                                />
-                            </div>
-                        </div>
-                        <button
-                            onClick={handleRunSimulation}
-                            disabled={isLoading || !selectedKpiId || newValue === ''}
-                            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-cyan-500 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300 disabled:bg-slate-600 disabled:cursor-not-allowed"
-                        >
-                            {isLoading ? <Spinner className="h-5 w-5" /> : <SparklesIcon className="h-5 w-5" />}
-                            {isLoading ? 'جاري التحليل...' : 'تشغيل المحاكاة'}
-                        </button>
-                    </div>
-                </>
-            ) : (
-                 <div className="space-y-6 animate-fade-in">
-                     <div className="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
-                        <h4 className="font-bold text-cyan-400 mb-2">ملخص المحاكاة</h4>
-                        <p>{analysisResult.simulation_summary}</p>
-                     </div>
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-4 bg-slate-900/50 rounded-lg border border-slate-700 text-center">
-                            <h5 className="text-slate-400 text-sm font-semibold flex items-center justify-center gap-2"><ArrowUpCircleIcon className="h-5 w-5"/>الأداء العام</h5>
-                            <p className="text-2xl font-bold text-green-400 mt-2">
-                                {analysisResult.overall_score_impact.from}% &rarr; {analysisResult.overall_score_impact.to}%
-                            </p>
-                        </div>
-                         <div className="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
-                             <h5 className="text-slate-400 text-sm font-semibold mb-2 flex items-center gap-2"><ArrowDownCircleIcon className="h-5 w-5"/>التأثيرات المتسلسلة</h5>
-                             <ul className="text-xs space-y-1 text-slate-300">
-                                {analysisResult.related_kpis_impact.map((item, i) => <li key={i}>&bull; {item.impact_description}</li>)}
-                             </ul>
-                        </div>
-                    </div>
-                     <div className="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
-                        <h4 className="font-bold text-cyan-400 mb-2">توصيات استراتيجية</h4>
-                        <ul className="list-disc ps-5 space-y-1">
-                            {analysisResult.recommendations.map((rec, i) => <li key={i}>{rec}</li>)}
-                        </ul>
-                     </div>
-
-                    <button
-                        onClick={handleReset}
-                        className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-600 text-white font-semibold rounded-lg shadow-md hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300"
-                    >
-                        <ArrowPathIcon className="h-5 w-5" />
-                        إجراء محاكاة جديدة
-                    </button>
+            {isLoading && (
+                 <div className="text-center py-8">
+                    <Spinner className="mx-auto" />
                  </div>
             )}
             
-            <style>{`
-                 @keyframes fade-in {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
-            `}</style>
+            {analysisResult && (
+                <div className="space-y-4 animate-fade-in">
+                    <div className="p-4 bg-slate-900/50 rounded-lg border-l-4 border-cyan-500">
+                        <h4 className="font-bold text-cyan-400 mb-2">ملخص المحاكاة</h4>
+                        <p>{analysisResult.simulation_summary}</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
+                            <h5 className="font-semibold text-slate-300 mb-2 flex items-center gap-2"><BanknotesIcon className="h-5 w-5 text-green-400" />التأثير على الأداء العام</h5>
+                            <div className="flex items-center justify-center gap-4">
+                                <span className="text-2xl font-bold text-slate-400">{analysisResult.overall_score_impact.from}%</span>
+                                <ArrowPathIcon className="h-6 w-6 text-cyan-400" />
+                                <span className="text-3xl font-bold text-green-400">{analysisResult.overall_score_impact.to}%</span>
+                            </div>
+                        </div>
+
+                        <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
+                            <h5 className="font-semibold text-slate-300 mb-2">التأثيرات المتسلسلة</h5>
+                            <ul className="space-y-2 text-sm">
+                                {analysisResult.related_kpis_impact.map((impact, index) => (
+                                    <li key={index} className="flex items-start gap-2">
+                                        <span className="text-cyan-400 mt-1">&#8226;</span>
+                                        <div>
+                                            <span className="font-semibold">{impact.kpi_name}:</span> {impact.impact_description}
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700">
+                        <h5 className="font-semibold text-slate-300 mb-2">توصيات لتحقيق هذا التحسين</h5>
+                        <ul className="list-disc ps-5 space-y-1 text-sm">
+                            {analysisResult.recommendations.map((rec, index) => (
+                                <li key={index}>{rec}</li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            )}
+            <style>{`.animate-fade-in { animation: fade-in 0.5s ease-out forwards; } @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }`}</style>
         </div>
     );
 };

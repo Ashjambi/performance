@@ -1,10 +1,11 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon, PrinterIcon, AcademicCapIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/solid';
 import { toast } from 'react-hot-toast';
 import type { KPI, TrainingScenario } from '../data.tsx';
 import { Spinner } from './Spinner.tsx';
-import { generateTrainingScenario } from '../services/geminiService.tsx';
+import { generateTrainingScenario, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 
 type TrainingScenarioModalProps = {
   isOpen: boolean;
@@ -31,10 +32,11 @@ export const TrainingScenarioModal = ({ isOpen, onClose, kpi }: TrainingScenario
       try {
         const result = await generateTrainingScenario(kpi);
         setScenario(result);
-      } catch (e) {
+      } catch (e: any) {
         console.error("Failed to generate training scenario:", e);
-        setError("حدث خطأ أثناء إنشاء السيناريو. يرجى المحاولة مرة أخرى.");
-        toast.error("فشل إنشاء السيناريو التدريبي.");
+        const errorMessage = e.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : "حدث خطأ أثناء إنشاء السيناريو. يرجى المحاولة مرة أخرى.";
+        setError(errorMessage);
+        toast.error(errorMessage);
       } finally {
         setIsLoading(false);
       }

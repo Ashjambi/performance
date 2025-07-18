@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { CpuChipIcon, SparklesIcon } from '@heroicons/react/24/outline';
@@ -8,7 +9,7 @@ import { toast } from 'react-hot-toast';
 import type { KPI, AnalysisResult } from '../data.tsx';
 import { forecastKpiValue } from '../data.tsx';
 import { Spinner } from './Spinner.tsx';
-import { generateForecastAnalysis } from '../services/geminiService.tsx';
+import { generateForecastAnalysis, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 import { AppStateContext } from '../context/AppContext.tsx';
 
 type ForecastModalProps = {
@@ -76,9 +77,10 @@ export const ForecastModal = ({ isOpen, onClose, kpi }: ForecastModalProps) => {
       const result = await generateForecastAnalysis(kpi, selectedManagerId, forecastedValue);
       setAnalysisResult(result);
       toast.success("تم إنشاء تحليل التوقعات بنجاح");
-    } catch(e) {
+    } catch(e: any) {
       console.error(e);
-      toast.error("فشل إنشاء تحليل التوقعات.");
+      const errorMessage = e.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : "فشل إنشاء تحليل التوقعات.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

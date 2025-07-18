@@ -11,6 +11,7 @@ import { AskGemini } from './components/AskGemini.tsx';
 import { SparklesIcon } from '@heroicons/react/24/solid';
 import { MeetingReportModal } from './components/MeetingReportModal.tsx';
 import type { Manager } from './data.tsx';
+import { ApiBanner } from './components/ApiBanner.tsx';
 
 
 const App = () => {
@@ -60,7 +61,9 @@ const App = () => {
         alerts={alerts}
       />
 
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8 pt-24">
+      <ApiBanner />
+
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8 pt-6">
         {currentView === 'manager' ? (
            <>
             {selectedManager ? (

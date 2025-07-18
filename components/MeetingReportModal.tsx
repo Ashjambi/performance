@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useContext } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -7,7 +8,7 @@ import { DocumentTextIcon, ChartBarIcon, ClipboardDocumentCheckIcon } from '@her
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import type { Manager } from '../data.tsx';
 import { calculateManagerOverallScore, calculatePillarScore } from '../data.tsx';
-import { generateMeetingSummary } from '../services/geminiService.tsx';
+import { generateMeetingSummary, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 import { Spinner } from './Spinner.tsx';
 import { AppStateContext } from '../context/AppContext.tsx';
 
@@ -29,7 +30,8 @@ export const MeetingReportModal = ({ isOpen, onClose, manager }: MeetingReportMo
                 .then(result => setSummary(result.summary))
                 .catch(err => {
                     console.error(err);
-                    setSummary("تعذر إنشاء ملخص بالذكاء الاصطناعي.");
+                    const errorMessage = err.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : "تعذر إنشاء ملخص بالذكاء الاصطناعي.";
+                    setSummary(errorMessage);
                 })
                 .finally(() => setIsLoading(false));
         }
