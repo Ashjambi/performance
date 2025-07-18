@@ -3,7 +3,7 @@ import { toast } from 'react-hot-toast';
 import { AppDispatchContext } from '../context/AppContext.tsx';
 import type { Manager, AnalysisResult, Recommendation, TimePeriod } from '../data.tsx';
 import { calculateKpiScore } from '../data.tsx';
-import { generateExecutiveAnalysis, generateExecutiveForecastAnalysis, generateActionPlanSteps, generatePillarDiagnosis } from '../services/geminiService.tsx';
+import { generateExecutiveAnalysis, generateExecutiveForecastAnalysis, generateActionPlanSteps, generatePillarDiagnosis, isAiAvailable, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 import type { PillarDiagnosisResult } from '../services/geminiService.tsx';
 import { AnalysisModal } from './AnalysisModal.tsx';
 import { Spinner } from './Spinner.tsx';
@@ -60,6 +60,8 @@ export const ExecutiveOverviewTab = ({
     const [isLoadingPillarDiagnosis, setIsLoadingPillarDiagnosis] = useState(false);
     const [recommendationToAssign, setRecommendationToAssign] = useState<Recommendation | null>(null);
 
+    const aiDisabledTitle = !isAiAvailable ? API_KEY_ERROR_MESSAGE : undefined;
+
      // Handlers
     const handleGenerateAnalysis = async (type: 'current' | 'forecast') => {
         setIsAnalysisModalOpen(true);
@@ -79,9 +81,9 @@ export const ExecutiveOverviewTab = ({
             });
             const result = await promise;
             setAnalysisResult(result);
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            setAnalysisError("حدث خطأ أثناء الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى لاحقًا.");
+            setAnalysisError(e.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : "حدث خطأ أثناء الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى لاحقًا.");
         } finally {
             setIsLoadingAnalysis(false);
         }
@@ -113,9 +115,9 @@ export const ExecutiveOverviewTab = ({
             });
             toast.success('تم إنشاء وإسناد خطة العمل بنجاح!', { id: toastId });
             setRecommendationToAssign(null); // Close assignment modal
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            toast.error('فشل إنشاء خطة العمل.', { id: toastId });
+            toast.error(e.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : 'فشل إنشاء خطة العمل.', { id: toastId });
         }
     };
 
@@ -143,9 +145,9 @@ export const ExecutiveOverviewTab = ({
                 managersDataForPillar as any
             );
             setPillarDiagnosisResult(result);
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            toast.error('فشل تشخيص الركيزة.');
+            toast.error(e.message === API_KEY_ERROR_MESSAGE ? API_KEY_ERROR_MESSAGE : 'فشل تشخيص الركيزة.');
             setIsPillarDiagnosisModalOpen(false);
         } finally {
             setIsLoadingPillarDiagnosis(false);
@@ -227,7 +229,11 @@ export const ExecutiveOverviewTab = ({
                     <div className="space-y-3">
                         {pillarPerformance.map(p => (
                             <div key={p.id} className="flex items-center justify-between text-sm">
-                                <button onClick={() => handleDiagnosePillar(p)} className="font-semibold text-slate-300 hover:text-cyan-400 flex items-center gap-2">
+                                <button
+                                    onClick={() => handleDiagnosePillar(p)}
+                                    disabled={!isAiAvailable}
+                                    title={aiDisabledTitle}
+                                    className="font-semibold text-slate-300 hover:text-cyan-400 flex items-center gap-2 disabled:text-slate-600 disabled:cursor-not-allowed disabled:hover:text-slate-600">
                                     <DocumentMagnifyingGlassIcon className="h-4 w-4"/>
                                     {p.name}
                                 </button>
@@ -291,11 +297,11 @@ export const ExecutiveOverviewTab = ({
             <div className="bg-slate-800 rounded-lg shadow-lg p-5 border border-slate-700">
                 <h3 className="text-xl font-bold text-slate-100 mb-4 text-center">أدوات التحليل الاستراتيجي</h3>
                 <div className="flex flex-wrap justify-center items-center gap-4">
-                    <button onClick={() => handleGenerateAnalysis('current')} disabled={isLoadingAnalysis} className="flex-1 min-w-[200px] inline-flex items-center justify-center gap-2 px-4 py-2 bg-cyan-500 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-600 disabled:bg-slate-600">
+                    <button onClick={() => handleGenerateAnalysis('current')} disabled={isLoadingAnalysis || !isAiAvailable} title={aiDisabledTitle} className="flex-1 min-w-[200px] inline-flex items-center justify-center gap-2 px-4 py-2 bg-cyan-500 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-600 disabled:bg-slate-600 disabled:cursor-not-allowed">
                         {isLoadingAnalysis ? <Spinner className="h-5 w-5" /> : <SparklesIcon className="h-5 w-5" />}
                         تحليل الأداء الحالي
                     </button>
-                        <button onClick={() => handleGenerateAnalysis('forecast')} disabled={isLoadingAnalysis} className="flex-1 min-w-[200px] inline-flex items-center justify-center gap-2 px-4 py-2 bg-cyan-800 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-700 disabled:bg-slate-600">
+                        <button onClick={() => handleGenerateAnalysis('forecast')} disabled={isLoadingAnalysis || !isAiAvailable} title={aiDisabledTitle} className="flex-1 min-w-[200px] inline-flex items-center justify-center gap-2 px-4 py-2 bg-cyan-800 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-700 disabled:bg-slate-600 disabled:cursor-not-allowed">
                         {isLoadingAnalysis ? <Spinner className="h-5 w-5" /> : <CpuChipIcon className="h-5 w-5" />}
                         توقعات وتحليل مستقبلي
                     </button>

@@ -1,5 +1,3 @@
-
-
 import React, { useState, useMemo, useContext, useEffect } from 'react';
 import { XMarkIcon, TrophyIcon } from '@heroicons/react/24/solid';
 import { SparklesIcon } from '@heroicons/react/24/outline';
@@ -7,7 +5,7 @@ import { toast } from 'react-hot-toast';
 import { AppStateContext } from '../context/AppContext.tsx';
 import type { Manager } from '../data.tsx';
 import { getAvailableMonthsForCompetition, calculateManagerScoreForMonth, getManagerSnapshotForMonth } from '../data.tsx';
-import { generateCompetitionAnnouncement, generateWinnerAnalysis, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
+import { generateCompetitionAnnouncement, generateWinnerAnalysis, API_KEY_ERROR_MESSAGE, isAiAvailable } from '../services/geminiService.tsx';
 import { Spinner } from './Spinner.tsx';
 
 type CompetitionResult = {
@@ -216,7 +214,7 @@ export const CompetitionModal = ({ isOpen, onClose }) => {
                             <button onClick={() => resetState()} className="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-2 px-4 rounded-lg">
                                 العودة
                             </button>
-                             <button onClick={handleGenerateDetails} disabled={isLoading || !!winnerAnalysis} className="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-2 px-4 rounded-lg disabled:bg-slate-600 disabled:opacity-50">
+                             <button onClick={handleGenerateDetails} disabled={isLoading || !!winnerAnalysis || !isAiAvailable} title={!isAiAvailable ? API_KEY_ERROR_MESSAGE : undefined} className="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-2 px-4 rounded-lg disabled:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed">
                                 {isLoading ? <Spinner className="h-4 w-4" /> : <SparklesIcon className="h-5 w-5" />}
                                 {isLoading ? 'جاري الإعداد...' : 'شرح الفوز وإعداد الإعلان'}
                             </button>

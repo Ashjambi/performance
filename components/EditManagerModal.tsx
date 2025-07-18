@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { XMarkIcon, TrashIcon, PlusCircleIcon } from '@heroicons/react/24/solid';
 import { SparklesIcon } from '@heroicons/react/24/outline';
@@ -8,7 +6,7 @@ import type { Manager, ManagerRole, ManagerRoleValue, Pillar, KPI } from '../dat
 import { ROLE_TEMPLATES, ALL_KPIS, ALL_PILLARS_MASTER_LIST, KPI_CATEGORIES, deepCopy, RISK_KPI_IDS } from '../data.tsx';
 import { AppDispatchContext } from '../context/AppContext.tsx';
 import { ConfirmDeleteModal } from './ConfirmDeleteModal.tsx';
-import { generateKpiTargetSuggestion, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
+import { generateKpiTargetSuggestion, API_KEY_ERROR_MESSAGE, isAiAvailable } from '../services/geminiService.tsx';
 import { Spinner } from './Spinner.tsx';
 
 type EditManagerModalProps = {
@@ -396,9 +394,9 @@ export const EditManagerModal = ({ isOpen, onClose, manager, roles }: EditManage
                                                   <button
                                                       type="button"
                                                       onClick={() => handleSuggestKpiTarget(pillar.id, kpi)}
-                                                      disabled={suggestingForKpi === kpi.id}
-                                                      className="text-slate-500 hover:text-cyan-400 disabled:text-cyan-600 disabled:animate-pulse p-1"
-                                                      title="اقتراح هدف بالذكاء الاصطناعي"
+                                                      disabled={suggestingForKpi === kpi.id || !isAiAvailable}
+                                                      className="text-slate-500 hover:text-cyan-400 disabled:text-cyan-600 disabled:animate-pulse p-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                      title={!isAiAvailable ? API_KEY_ERROR_MESSAGE : "اقتراح هدف بالذكاء الاصطناعي"}
                                                   >
                                                       {suggestingForKpi === kpi.id ? <Spinner className="h-4 w-4" /> : <SparklesIcon className="h-4 w-4"/>}
                                                   </button>

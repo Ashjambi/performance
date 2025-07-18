@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { ArrowTrendingUpIcon, SparklesIcon } from '@heroicons/react/24/outline';
@@ -10,7 +7,7 @@ import type { KPI, KPIHistory } from '../data.tsx';
 import { calculatePeerAverageForKpi } from '../data.tsx';
 import { AppStateContext } from '../context/AppContext.tsx';
 import { Spinner } from './Spinner.tsx';
-import { generateTrendAnalysis, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
+import { generateTrendAnalysis, API_KEY_ERROR_MESSAGE, isAiAvailable } from '../services/geminiService.tsx';
 
 type HistoricalTrendModalProps = {
   isOpen: boolean;
@@ -112,7 +109,8 @@ export const HistoricalTrendModal = ({ isOpen, onClose, kpi }: HistoricalTrendMo
             <div className="space-y-4">
                 <button 
                   onClick={handleGenerateAnalysis}
-                  disabled={isLoading}
+                  disabled={isLoading || !isAiAvailable}
+                  title={!isAiAvailable ? API_KEY_ERROR_MESSAGE : undefined}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 disabled:bg-slate-600 disabled:cursor-not-allowed"
                 >
                     {isLoading ? <Spinner className="h-5 w-5"/> : <SparklesIcon className="h-5 w-5" />}

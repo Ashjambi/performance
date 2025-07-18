@@ -1,5 +1,3 @@
-
-
 import React, { useMemo, useState, useContext } from 'react';
 import type { Pillar, KPI, AnalysisResult, Recommendation } from '../data.tsx';
 import { calculateManagerOverallScore } from '../data.tsx';
@@ -9,7 +7,7 @@ import { AnalysisModal } from './AnalysisModal.tsx';
 import { Spinner } from './Spinner.tsx';
 import { SparklesIcon } from '@heroicons/react/24/outline';
 import { AppStateContext, AppDispatchContext } from '../context/AppContext.tsx';
-import { generatePerformanceAnalysis, generateActionPlanSteps, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
+import { generatePerformanceAnalysis, generateActionPlanSteps, API_KEY_ERROR_MESSAGE, isAiAvailable } from '../services/geminiService.tsx';
 
 const getScoreColor = (score) => {
   if (score >= 90) return '#22c55e'; // green-500
@@ -76,6 +74,8 @@ export const OverallScore = ({ managerForDisplay }) => {
     }
   }
 
+  const aiDisabledTitle = !isAiAvailable ? API_KEY_ERROR_MESSAGE : 'الحصول على تحليل بالذكاء الاصطناعي';
+
   return (
     <>
       <div className="bg-slate-800/50 rounded-xl p-6 shadow-2xl backdrop-blur-sm border border-slate-700 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -86,7 +86,8 @@ export const OverallScore = ({ managerForDisplay }) => {
           </p>
           <button 
               onClick={handleGenerateAnalysis}
-              disabled={isLoading}
+              disabled={isLoading || !isAiAvailable}
+              title={aiDisabledTitle}
               className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75 transition-all duration-300 disabled:bg-slate-600 disabled:cursor-not-allowed"
           >
               {isLoading ? (

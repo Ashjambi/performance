@@ -5,7 +5,7 @@ import type { Manager, ExecutiveTab, ManagerWithData } from '../data.tsx';
 import { calculateManagerOverallScore, calculatePillarScore, calculateKpiScore, getManagerSnapshotForPeriod } from '../data.tsx';
 import { Spinner } from './Spinner.tsx';
 import { Squares2X2Icon, ShieldCheckIcon, ClipboardDocumentCheckIcon, BeakerIcon, ShieldExclamationIcon } from '@heroicons/react/24/outline';
-import { generateBulkRiskProfiles } from '../services/geminiService.tsx';
+import { generateBulkRiskProfiles, isAiAvailable, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 import { ManagerMatrix } from './ManagerMatrix.tsx';
 import { ExecutiveActionHub } from './ExecutiveActionHub.tsx';
 import RiskAssessmentTab from './RiskAssessmentTab.tsx';
@@ -97,7 +97,7 @@ export const ExecutiveDashboard = ({ onEditManager, onGenerateReport }: Executiv
      // Fetch risk profiles when matrix tab is selected
     useEffect(() => {
         const fetchRiskProfiles = async () => {
-            if (currentTab !== 'matrix' || managersWithRiskProfiles.length > 0) return;
+            if (currentTab !== 'matrix' || managersWithRiskProfiles.length > 0 || !isAiAvailable) return;
 
             setIsLoadingMatrix(true);
             try {
@@ -130,28 +130,39 @@ export const ExecutiveDashboard = ({ onEditManager, onGenerateReport }: Executiv
         fetchRiskProfiles();
     }, [currentTab, managersForDisplay, currentTimePeriod, managersWithRiskProfiles.length]);
 
-    
+    const tabsConfig: { [key in ExecutiveTab]?: { label: string, icon: React.ElementType, isAi: boolean } } = {
+        overview: { label: 'نظرة عامة', icon: Squares2X2Icon, isAi: false },
+        matrix: { label: 'مصفوفة الأداء والمخاطر', icon: ShieldCheckIcon, isAi: true },
+        risk_assessment: { label: 'تحليل المخاطر الإجرائي', icon: BeakerIcon, isAi: true},
+        risk_register: {label: 'سجل المخاطر المتكامل', icon: ShieldExclamationIcon, isAi: false },
+        action_hub: { label: 'مركز متابعة الخطط', icon: ClipboardDocumentCheckIcon, isAi: false },
+    };
+
+    const orderedTabs: ExecutiveTab[] = ['overview', 'matrix', 'risk_assessment', 'risk_register', 'action_hub'];
+
     return (
         <div className="space-y-8">
             
             {/* Tabs */}
             <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-1.5 flex flex-wrap items-center gap-2">
-                {(Object.entries({
-                    overview: { label: 'نظرة عامة', icon: Squares2X2Icon },
-                    matrix: { label: 'مصفوفة الأداء والمخاطر', icon: ShieldCheckIcon },
-                    risk_assessment: { label: 'تحليل المخاطر الإجرائي', icon: BeakerIcon},
-                    risk_register: {label: 'سجل المخاطر المتكامل', icon: ShieldExclamationIcon },
-                    action_hub: { label: 'مركز متابعة الخطط', icon: ClipboardDocumentCheckIcon },
-                }) as [ExecutiveTab, { label: string, icon: React.ElementType }][]).map(([tabId, { label, icon: Icon }]) => (
-                    <button
-                        key={tabId}
-                        onClick={() => setCurrentTab(tabId)}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 text-sm font-semibold rounded-md transition-colors ${currentTab === tabId ? 'bg-cyan-500 text-white shadow' : 'text-slate-400 hover:bg-slate-700/50'}`}
-                    >
-                        <Icon className="h-5 w-5" />
-                        {label}
-                    </button>
-                ))}
+                {orderedTabs.map(tabId => {
+                    const tab = tabsConfig[tabId];
+                    if (!tab) return null;
+                    const isDisabled = tab.isAi && !isAiAvailable;
+
+                    return (
+                        <button
+                            key={tabId}
+                            onClick={() => setCurrentTab(tabId)}
+                            disabled={isDisabled}
+                            title={isDisabled ? API_KEY_ERROR_MESSAGE : undefined}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 text-sm font-semibold rounded-md transition-colors ${currentTab === tabId ? 'bg-cyan-500 text-white shadow' : 'text-slate-400 hover:bg-slate-700/50'} disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed disabled:hover:bg-slate-800`}
+                        >
+                            <tab.icon className="h-5 w-5" />
+                            {tab.label}
+                        </button>
+                    );
+                })}
             </div>
 
             {/* Content Area */}

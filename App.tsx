@@ -12,6 +12,7 @@ import { SparklesIcon } from '@heroicons/react/24/solid';
 import { MeetingReportModal } from './components/MeetingReportModal.tsx';
 import type { Manager } from './data.tsx';
 import { ApiBanner } from './components/ApiBanner.tsx';
+import { isAiAvailable, API_KEY_ERROR_MESSAGE } from './services/geminiService.tsx';
 
 
 const App = () => {
@@ -118,8 +119,9 @@ const App = () => {
       
       <button
         onClick={() => setIsAskGeminiOpen(true)}
-        className="fixed bottom-6 end-6 bg-cyan-500 text-white p-4 rounded-full shadow-lg hover:bg-cyan-600 transition-all duration-300 z-40 animate-pulse-slow no-print"
-        title="اسأل Gemini"
+        className="fixed bottom-6 end-6 bg-cyan-500 text-white p-4 rounded-full shadow-lg hover:bg-cyan-600 transition-all duration-300 z-40 animate-pulse-slow no-print disabled:bg-slate-600 disabled:opacity-70 disabled:cursor-not-allowed disabled:animate-none"
+        title={!isAiAvailable ? API_KEY_ERROR_MESSAGE : "اسأل Gemini"}
+        disabled={!isAiAvailable}
       >
         <SparklesIcon className="h-7 w-7" />
       </button>

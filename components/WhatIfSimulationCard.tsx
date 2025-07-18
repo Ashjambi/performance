@@ -1,12 +1,10 @@
-
-
 import React, { useState, useMemo, useContext } from 'react';
 import { toast } from 'react-hot-toast';
 import { LightBulbIcon, SparklesIcon, ArrowDownCircleIcon, ArrowUpCircleIcon, BanknotesIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { Spinner } from './Spinner.tsx';
 import { AppStateContext } from '../context/AppContext.tsx';
 import type { KPI, WhatIfAnalysis } from '../data.tsx';
-import { generateWhatIfAnalysis, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
+import { generateWhatIfAnalysis, API_KEY_ERROR_MESSAGE, isAiAvailable } from '../services/geminiService.tsx';
 
 type WhatIfSimulationCardProps = {
     managers: any[];
@@ -97,7 +95,8 @@ export const WhatIfSimulationCard = ({ managers, stationOverallScore }: WhatIfSi
                 <div className="md:col-span-1">
                     <button
                         onClick={handleRunSimulation}
-                        disabled={isLoading || !selectedKpiId || newValue === ''}
+                        disabled={isLoading || !selectedKpiId || newValue === '' || !isAiAvailable}
+                        title={!isAiAvailable ? API_KEY_ERROR_MESSAGE : undefined}
                         className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-cyan-500 text-white font-semibold rounded-lg shadow-md hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300 disabled:bg-slate-600 disabled:cursor-not-allowed"
                     >
                         {isLoading ? <Spinner className="h-5 w-5" /> : <SparklesIcon className="h-5 w-5" />}

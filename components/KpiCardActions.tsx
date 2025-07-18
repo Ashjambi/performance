@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
 import { CalculatorIcon, ArrowTrendingUpIcon, CpuChipIcon, DocumentMagnifyingGlassIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
+import { isAiAvailable, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 
 type KpiCardActionsProps = {
     onHowToCalculate: () => void;
@@ -36,14 +37,15 @@ export const KpiCardActions = ({ onHowToCalculate, onTrend, onForecast, onRca, o
         <div className="relative" ref={wrapperRef}>
             <button
                 onClick={() => setIsOpen(prev => !prev)}
-                className="p-1 rounded-full text-slate-500 hover:text-white hover:bg-slate-700 transition-colors"
+                className="p-1 rounded-full text-slate-500 hover:text-white hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-haspopup="true"
                 aria-expanded={isOpen}
-                aria-label="خيارات إضافية للمؤشر"
+                disabled={!isAiAvailable}
+                title={!isAiAvailable ? API_KEY_ERROR_MESSAGE : "خيارات إضافية للمؤشر"}
             >
                 <EllipsisVerticalIcon className="h-5 w-5" />
             </button>
-            {isOpen && (
+            {isOpen && isAiAvailable && (
                 <div
                     className="absolute end-0 mt-2 w-56 origin-top-right bg-slate-900 border border-slate-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-20 animate-fade-in-down"
                     role="menu"

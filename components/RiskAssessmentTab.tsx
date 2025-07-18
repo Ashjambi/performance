@@ -1,11 +1,8 @@
-
-
-
 import React, { useState, useContext } from 'react';
 import { toast } from 'react-hot-toast';
 import { BeakerIcon, ArrowUpOnSquareIcon, DocumentTextIcon, XCircleIcon, SparklesIcon, ArrowPathIcon, ScaleIcon, CheckBadgeIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import { Spinner } from './Spinner.tsx';
-import { generateDiscrepancyAnalysis, assessProcedureFromManual, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
+import { generateDiscrepancyAnalysis, assessProcedureFromManual, API_KEY_ERROR_MESSAGE, isAiAvailable } from '../services/geminiService.tsx';
 import type { ProcedureRiskAssessment, StandardProcedureAssessment, IdentifiedRisk } from '../data.tsx';
 import { ROLES } from '../data.tsx';
 import { AppDispatchContext } from '../context/AppContext.tsx';
@@ -349,7 +346,8 @@ const RiskAssessmentTab = () => {
 
                  <button
                     onClick={handleAnalyze}
-                    disabled={!file || isLoading || (analysisMode === 'custom' && !procedureText.trim()) || (analysisMode === 'standard' && !selectedProcedureId)}
+                    disabled={!file || isLoading || (analysisMode === 'custom' && !procedureText.trim()) || (analysisMode === 'standard' && !selectedProcedureId) || !isAiAvailable}
+                    title={!isAiAvailable ? API_KEY_ERROR_MESSAGE : undefined}
                     className="w-full max-w-sm mx-auto inline-flex items-center justify-center gap-2 px-4 py-3 bg-cyan-500 text-white font-semibold rounded-lg shadow-lg hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300 disabled:bg-slate-600 disabled:cursor-not-allowed"
                 >
                     <SparklesIcon className="h-6 w-6" />
