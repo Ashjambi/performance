@@ -220,22 +220,30 @@ export const ExecutiveOverviewTab = ({
                 <div className="bg-slate-800 rounded-lg shadow-lg p-5 border border-slate-700">
                     <h3 className="text-xl font-bold text-slate-100 mb-4">أداء الركائز</h3>
                     <div className="space-y-3">
-                        {pillarPerformance.map(p => (
-                            <div key={p.id} className="flex items-center justify-between text-sm">
-                                <button
-                                    onClick={() => handleDiagnosePillar(p)}
-                                    disabled={!isAiAvailable}
-                                    title={aiDisabledTitle}
-                                    className="font-semibold text-slate-300 hover:text-cyan-400 flex items-center gap-2 disabled:text-slate-600 disabled:cursor-not-allowed disabled:hover:text-slate-600">
-                                    <DocumentMagnifyingGlassIcon className="h-4 w-4"/>
-                                    {p.name}
-                                </button>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-32 bg-slate-700 rounded-full h-2"><div className="bg-cyan-500 h-2 rounded-full" style={{ width: `${p.score}%` }}></div></div>
-                                    <span className="font-bold text-cyan-400 w-10 text-end">{p.score}%</span>
+                        {pillarPerformance.map(p => {
+                            const scoreColorClass = p.score >= 90 ? 'bg-green-500' : p.score >= 75 ? 'bg-yellow-500' : 'bg-red-500';
+                            const textColorClass = p.score >= 90 ? 'text-green-400' : p.score >= 75 ? 'text-yellow-400' : 'text-red-400';
+                            const cappedScore = Math.min(p.score, 100);
+
+                            return (
+                                <div key={p.id} className="flex items-center justify-between text-sm">
+                                    <button
+                                        onClick={() => handleDiagnosePillar(p)}
+                                        disabled={!isAiAvailable}
+                                        title={aiDisabledTitle}
+                                        className="font-semibold text-slate-300 hover:text-cyan-400 flex items-center gap-2 disabled:text-slate-600 disabled:cursor-not-allowed disabled:hover:text-slate-600">
+                                        <DocumentMagnifyingGlassIcon className="h-4 w-4"/>
+                                        {p.name}
+                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-32 bg-slate-700 rounded-full h-2">
+                                            <div className={`${scoreColorClass} h-2 rounded-full`} style={{ width: `${cappedScore}%` }}></div>
+                                        </div>
+                                        <span className={`font-bold w-10 text-end ${textColorClass}`}>{p.score}%</span>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
                     {/* Manager Performance */}
