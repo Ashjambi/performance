@@ -83,15 +83,26 @@ export const Header = ({ onAddManager, onEditManager, alerts }: HeaderProps) => 
             <div className="flex flex-1 items-center gap-4 min-w-0">
               <div className="text-3xl font-black text-white tracking-wider">SGS</div>
               <div className="flex flex-col min-w-0">
-                  <h1 className="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight">
-                    {currentView === 'manager' 
-                        ? <>تقييم أداء: <span className="text-cyan-400">{selectedManager?.name || '...'}</span></>
-                        : <span className="text-cyan-400">لوحة المتابعة التنفيذية</span>
-                    }
-                  </h1>
-                  {currentView === 'manager' && selectedManager && (
-                      <span className="text-sm text-slate-400 font-normal">{selectedManager.department} ({selectedManagerRoleName})</span>
-                  )}
+                {currentView === 'manager' 
+                  ? (
+                    <>
+                      <h1 className="text-base font-medium text-slate-300 tracking-tight">
+                        تقييم أداء
+                      </h1>
+                      <p className="text-lg sm:text-xl font-bold text-cyan-400 truncate -mt-1" title={selectedManager?.name}>
+                        {selectedManager?.name || '...'}
+                      </p>
+                    </>
+                  )
+                  : (
+                    <h1 className="text-xl sm:text-2xl font-bold text-cyan-400 tracking-tight">
+                      لوحة المتابعة التنفيذية
+                    </h1>
+                  )
+                }
+                {currentView === 'manager' && selectedManager && (
+                    <span className="text-sm text-slate-400 font-normal">{selectedManager.department} ({selectedManagerRoleName})</span>
+                )}
               </div>
             </div>
             

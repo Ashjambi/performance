@@ -7,9 +7,21 @@ type ConfirmDeleteModalProps = {
   onConfirm: () => void;
   title: string;
   message: string;
+  icon?: React.ReactNode;
+  confirmButtonText?: string;
+  confirmButtonClass?: string;
 };
 
-export const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, title, message }: ConfirmDeleteModalProps) => {
+export const ConfirmDeleteModal = ({ 
+  isOpen, 
+  onClose, 
+  onConfirm, 
+  title, 
+  message, 
+  icon,
+  confirmButtonText = 'تأكيد الحذف',
+  confirmButtonClass = 'bg-red-600 hover:bg-red-700'
+}: ConfirmDeleteModalProps) => {
   if (!isOpen) return null;
 
   return (
@@ -23,7 +35,7 @@ export const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, title, message 
       >
         <header className="flex items-center justify-between p-4 border-b border-slate-700">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <ExclamationTriangleIcon className="h-6 w-6 text-yellow-400" />
+            {icon || <ExclamationTriangleIcon className="h-6 w-6 text-yellow-400" />}
             {title}
           </h2>
           <button
@@ -50,9 +62,9 @@ export const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, title, message 
           <button
             type="button"
             onClick={onConfirm}
-            className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+            className={`${confirmButtonClass} text-white font-semibold py-2 px-4 rounded-lg transition-colors`}
           >
-            تأكيد الحذف
+            {confirmButtonText}
           </button>
         </footer>
       </div>
