@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useContext, useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 import type { Pillar } from '../data.tsx';
@@ -13,7 +9,7 @@ import { Squares2X2Icon, ClipboardDocumentListIcon } from '@heroicons/react/24/o
 import { getManagerSnapshotForPeriod } from '../data.tsx';
 
 export const Dashboard = () => {
-  const { managers, selectedManagerId, currentTimePeriod } = useContext(AppStateContext);
+  const { managers, selectedManagerId, currentTimePeriod, selectedMonth } = useContext(AppStateContext);
   const dispatch = useContext(AppDispatchContext);
   const [activeTab, setActiveTab] = useState<'pillars' | 'plans'>('pillars');
   
@@ -21,8 +17,22 @@ export const Dashboard = () => {
 
   const managerForDisplay = useMemo(() => {
     if (!selectedManager) return null;
-    return getManagerSnapshotForPeriod(selectedManager, currentTimePeriod);
+
+    if (currentTimePeriod !== 'monthly') {
+        return getManagerSnapshotForPeriod(selectedManager, currentTimePeriod);
+    }
+    
+    // For 'monthly' view, the state from the context is now the single source of truth.
+    // The reducer handles updating KPI values when the month or manager changes.
+    return selectedManager;
+
   }, [selectedManager, currentTimePeriod]);
+
+  const monthForDisplay = useMemo(() => {
+    if (currentTimePeriod !== 'monthly' || !selectedMonth) return null;
+    const date = new Date(selectedMonth + '-15'); // Use day 15 to avoid tz issues
+    return date.toLocaleString('ar-EG', { month: 'long', year: 'numeric' });
+  }, [currentTimePeriod, selectedMonth]);
 
 
   if (!managerForDisplay) {
@@ -35,6 +45,13 @@ export const Dashboard = () => {
 
   return (
     <div className="space-y-8">
+      {currentTimePeriod === 'monthly' && monthForDisplay && (
+        <div className="bg-slate-800/50 rounded-lg p-3 text-center border border-slate-700">
+            <h2 className="text-lg font-semibold text-slate-200">
+                أنت تعرض بيانات شهر: <span className="text-cyan-400 font-bold">{monthForDisplay}</span>
+            </h2>
+        </div>
+      )}
       <OverallScore managerForDisplay={managerForDisplay} />
       
       <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-1.5">

@@ -6,7 +6,7 @@
 
 // --- Base & Time ---
 export type TimePeriod = 'monthly' | 'quarterly' | 'yearly';
-export type ExecutiveTab = 'overview' | 'matrix' | 'risk_assessment' | 'risk_register' | 'action_hub';
+export type ExecutiveTab = 'overview' | 'matrix' | 'risk_assessment' | 'risk_register' | 'action_hub' | 'audit_management' | 'strategic_goals' | 'settings';
 
 // --- Roles & Managers ---
 export const ROLES = {
@@ -227,12 +227,57 @@ export type TrainingScenario = {
   debrief_points: string[];
 };
 
+// --- Audit Types ---
+export type AuditChecklistItemStatus = 'pending' | 'compliant' | 'non-compliant' | 'note';
+export type AuditRiskLevel = 'High' | 'Medium' | 'Low';
+
+export type AuditChecklistItem = {
+    id: string;
+    text: string;
+    category: string;
+    riskLevel: AuditRiskLevel;
+    status: AuditChecklistItemStatus;
+    notes: string;
+};
+
+export type AuditChecklist = {
+    id: string;
+    prompt: string;
+    title: string;
+    createdAt: string; // ISO String
+    items: AuditChecklistItem[];
+};
+
+export type GeneratedChecklistItem = {
+    item_text: string;
+    category: string;
+    risk_level: AuditRiskLevel;
+};
+
+export type GeneratedChecklist = {
+    checklist_title: string;
+    items: GeneratedChecklistItem[];
+};
+
+// --- Strategic Goals ---
+export type StrategicGoal = {
+    id: string;
+    title: string;
+    description: string;
+    timeframe: 'quarterly' | 'yearly';
+    linkedKpiIds: string[];
+    createdAt: string; // ISO String
+};
+
+
 // =================================================================================
 // SECTION: UTILITY FUNCTIONS
 // =================================================================================
 
 // --- Simple Utils ---
 export const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
+export const getCurrentMonthIdentifier = () => new Date().toISOString().substring(0, 7);
+
 
 // --- Score Calculation ---
 /**
@@ -339,33 +384,33 @@ export const getManagerSnapshotForPeriod = (
     period: TimePeriod
 ): Manager => {
     if (period === 'monthly') {
-        return manager; // No need to copy or calculate for monthly
+        // The Dashboard component handles creating a specific snapshot for the selected month.
+        return manager;
     }
 
     const managerSnapshot = deepCopy(manager);
-    const originalManager = INITIAL_MANAGERS_DATA.find(m => m.id === manager.id) || manager;
-
 
     for (const pillar of managerSnapshot.pillars) {
         for (const kpi of pillar.kpis) {
-            const originalKpi = originalManager.pillars.flatMap(p => p.kpis).find(ok => ok.id === kpi.id);
-            if (originalKpi) {
-                 kpi.value = getAggregatedKpiValue(originalKpi, period);
-            }
+            // The kpi object here already contains the full history from the current state.
+            // We just need to calculate the aggregated value for this snapshot.
+            kpi.value = getAggregatedKpiValue(kpi, period);
         }
     }
 
     return managerSnapshot;
 };
 
-// --- Competition Engine ---
+// --- Time Navigation & Competition Engine ---
 /**
- * Gets a list of unique months from all manager histories for the competition dropdown.
+ * Gets a list of unique months from all histories for the month selector.
  * @param managers Array of all managers.
  * @returns An array of objects with label and value for the dropdown.
  */
-export const getAvailableMonthsForCompetition = (managers: Manager[]): { label: string; value: string }[] => {
+export const getAvailableMonths = (managers: Manager[]): { label: string; value: string }[] => {
     const monthSet = new Set<string>();
+    const currentMonth = getCurrentMonthIdentifier();
+    monthSet.add(currentMonth); // Always include the current month for data entry
 
     managers.forEach(manager => {
         manager.pillars.forEach(pillar => {
@@ -380,9 +425,10 @@ export const getAvailableMonthsForCompetition = (managers: Manager[]): { label: 
     const sortedMonths = Array.from(monthSet).sort().reverse();
 
     return sortedMonths.map(monthStr => {
-        const date = new Date(monthStr + '-02'); // Use day 2 to avoid timezone issues
+        const date = new Date(monthStr + '-15'); // Use day 15 to avoid tz issues
         const label = date.toLocaleString('ar-EG', { month: 'long', year: 'numeric' });
-        return { label, value: monthStr };
+        const isCurrent = monthStr === currentMonth;
+        return { label: isCurrent ? `${label} (الحالي)` : label, value: monthStr };
     });
 };
 
@@ -552,17 +598,15 @@ export const forecastStationScore = (managers: Manager[]): { stationHistory: KPI
 // SECTION: MASTER DATA & TEMPLATES
 // =================================================================================
 
+// --- Risk Matrix Constants ---
+export const LIKELIHOOD_ORDER: IdentifiedRisk['likelihood'][] = ['نادر', 'غير محتمل', 'محتمل', 'مرجح', 'شبه مؤكد'];
+export const IMPACT_ORDER: IdentifiedRisk['impact'][] = ['ضئيل', 'طفيف', 'متوسط', 'كبير', 'كارثي'];
+
 // --- History Generator ---
 const generateHistory = (initialValue: number, isLowerBetter: boolean) => {
+    // Return an empty history array for new managers.
+    // Data will be populated as the user enters it for each month.
     const history: KPIHistory[] = [];
-    let currentValue = initialValue;
-    for (let i = 11; i >= 0; i--) {
-        const date = new Date();
-        date.setMonth(date.getMonth() - i);
-        const fluctuation = (Math.random() - 0.5) * (initialValue * 0.1); // +/- 5% fluctuation
-        currentValue = currentValue + (isLowerBetter ? -fluctuation : fluctuation);
-        history.push({ date: date.toISOString(), value: parseFloat(currentValue.toFixed(2)) });
-    }
     return history;
 }
 
@@ -924,8 +968,8 @@ export const RISK_KPI_IDS = new Set(KPI_CATEGORIES['السلامة والجود�
 const kpiWithValue = (kpiId: string, value: number): KPI => {
     const kpiMaster = deepCopy(ALL_KPIS[kpiId]);
     const history = generateHistory(value, kpiMaster.lowerIsBetter);
-    // Use last generated history value as the current value
-    const currentValue = history.length > 0 ? history[history.length - 1].value : value;
+    // When a new manager is created, their KPIs should start at 0 as there is no history.
+    const currentValue = 0;
     return { ...kpiMaster, id: kpiId, value: currentValue, history };
 };
 
@@ -1030,160 +1074,7 @@ export const ROLE_TEMPLATES: Record<ManagerRole, Pillar[]> = {
   TECHNICAL: TECHNICAL_PILLARS,
 };
 
-export const INITIAL_MANAGERS_DATA: Manager[] = [
-  {
-    id: 'manager_1',
-    name: 'Abdullah H. Algarni',
-    department: 'Baggage Sortation',
-    role: 'PASSENGER',
-    pillars: deepCopy(ROLE_TEMPLATES.PASSENGER),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_2',
-    name: 'Abdulaziz Mo. Alghamdi',
-    department: 'Dispatch & Roster Partner',
-    role: 'SUPPORT',
-    pillars: deepCopy(ROLE_TEMPLATES.SUPPORT),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_3',
-    name: 'Rafat Al-Zamzamie',
-    department: 'Hajj & Umrah Ramp',
-    role: 'RAMP',
-    pillars: deepCopy(ROLE_TEMPLATES.RAMP),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_4',
-    name: 'Abdulelah S.Olfat',
-    department: 'Ramp Operations',
-    role: 'RAMP',
-    pillars: deepCopy(ROLE_TEMPLATES.RAMP),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_5',
-    name: 'Omar A. Alodaini',
-    department: 'Passenger Services FAL',
-    role: 'PASSENGER',
-    pillars: deepCopy(ROLE_TEMPLATES.PASSENGER),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_6',
-    name: 'Raid Algadi',
-    department: 'Passenger Services DOME',
-    role: 'PASSENGER',
-    pillars: deepCopy(ROLE_TEMPLATES.PASSENGER),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_7',
-    name: 'Saleh K. Aljehani',
-    department: 'Passenger Services Local',
-    role: 'PASSENGER',
-    pillars: deepCopy(ROLE_TEMPLATES.PASSENGER),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_8',
-    name: 'Ali H. Alshumrani',
-    department: 'Technical Services',
-    role: 'TECHNICAL',
-    pillars: deepCopy(ROLE_TEMPLATES.TECHNICAL),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_9',
-    name: 'Faisal A. Taweeli',
-    department: 'Traffic Control Saudia',
-    role: 'RAMP',
-    pillars: deepCopy(ROLE_TEMPLATES.RAMP),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_10',
-    name: 'Loay F. Haneef',
-    department: 'Admin & Business Support Services',
-    role: 'SUPPORT',
-    pillars: deepCopy(ROLE_TEMPLATES.SUPPORT),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_11',
-    name: 'Ahmed S. Nadershah',
-    department: 'Airline Relations',
-    role: 'SUPPORT',
-    pillars: deepCopy(ROLE_TEMPLATES.SUPPORT),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_12',
-    name: 'Abdulmajeed A. Tlmesany',
-    department: 'Baggage Services and Arrival',
-    role: 'PASSENGER',
-    pillars: deepCopy(ROLE_TEMPLATES.PASSENGER),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_13',
-    name: 'Saadi S. Alzahrani',
-    department: 'Royal Fleet Services',
-    role: 'RAMP',
-    pillars: deepCopy(ROLE_TEMPLATES.RAMP),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_15',
-    name: 'Nazzal M. Alotibi',
-    department: 'Hub Operations',
-    role: 'RAMP',
-    pillars: deepCopy(ROLE_TEMPLATES.RAMP),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_16',
-    name: 'Kholoud B. Babateen',
-    department: 'Safety Quality and Security',
-    role: 'SAFETY',
-    pillars: deepCopy(ROLE_TEMPLATES.SAFETY),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_17',
-    name: 'Atif I. Alazhari',
-    department: 'Passenger Services Hajj',
-    role: 'PASSENGER',
-    pillars: deepCopy(ROLE_TEMPLATES.PASSENGER),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_18',
-    name: 'Hani Almahmadi',
-    department: 'Ramp Handling',
-    role: 'RAMP',
-    pillars: deepCopy(ROLE_TEMPLATES.RAMP),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_19',
-    name: 'Mohamed S. Binjahlan',
-    department: 'G.S.E & U.L.D',
-    role: 'TECHNICAL',
-    pillars: deepCopy(ROLE_TEMPLATES.TECHNICAL),
-    actionPlans: [],
-  },
-  {
-    id: 'manager_20',
-    name: 'Mohammed R. Aladamawi',
-    department: 'Traffic Control FAL',
-    role: 'RAMP',
-    pillars: deepCopy(ROLE_TEMPLATES.RAMP),
-    actionPlans: [],
-  }
-];
+export const createInitialManagersData = (): Manager[] => ([]);
 
 // --- MASTER LISTS FOR DYNAMIC EDITING ---
 const allPillarTemplates = [...RAMP_PILLARS, ...PASSENGER_PILLARS, ...SUPPORT_PILLARS, ...SAFETY_PILLARS, ...TECHNICAL_PILLARS];

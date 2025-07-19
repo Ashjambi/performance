@@ -1,8 +1,6 @@
-/// <reference types="vite/client" />
-
 import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
-import type { Pillar, KPI, AnalysisResult, CalculationGuide, KPIHistory, Manager, ManagerRole, Recommendation, WhatIfAnalysis, RiskProfile, TimePeriod, ProcedureRiskAssessment, StandardProcedureAssessment, TrainingScenario } from '../data.tsx';
-import { calculateKpiScore, calculatePillarScore, calculateManagerOverallScore, KPI_CATEGORIES, forecastStationScore } from '../data.tsx';
+import type { Pillar, KPI, AnalysisResult, CalculationGuide, KPIHistory, Manager, ManagerRole, Recommendation, WhatIfAnalysis, RiskProfile, TimePeriod, ProcedureRiskAssessment, StandardProcedureAssessment, TrainingScenario, RegisteredRisk, GeneratedChecklist, StrategicGoal, GeneratedChecklistItem } from '../data.tsx';
+import { calculateKpiScore, calculatePillarScore, calculateManagerOverallScore, KPI_CATEGORIES, forecastStationScore, ALL_KPIS } from '../data.tsx';
 import { toast } from 'react-hot-toast';
 
 // --- Caching Service ---
@@ -1487,4 +1485,174 @@ export const generateTrainingScenario = async (kpi: KPI): Promise<TrainingScenar
     const result = JSON.parse(jsonText);
     setInCache(cacheKey, result);
     return result;
+};
+
+export const generateAuditChecklist = async (prompt: string): Promise<GeneratedChecklist> => {
+    const ai = getAI();
+    const cacheKey = `audit_checklist_${prompt.substring(0, 100)}`;
+    const cachedData = getFromCache<GeneratedChecklist>(cacheKey);
+    if (cachedData) {
+        toast.success("تم استرجاع قائمة التدقيق من الذاكرة المؤقتة.");
+        return cachedData;
+    }
+    
+    const fullPrompt = `
+        أنت مدقق جودة وسلامة طيران دولي معتمد (Lead ISAGO Auditor). مهمتك هي إنشاء قائمة تدقيق (Checklist) شاملة ومفصلة بناءً على طلب المستخدم.
+        يجب أن تكون بنود القائمة واضحة، قابلة للتحقق، ومصنفة بشكل منطقي.
+
+        طلب المستخدم: "${prompt}"
+
+        المطلوب:
+        - إنشاء قائمة تدقيق تتراوح بين 10 و 20 بندًا.
+        - تصنيف كل بند ضمن فئة منطقية (مثال: "فحص ما قبل التشغيل"، "التواصل والتنسيق"، "إجراءات السلامة").
+        - **الأهم:** لكل بند، قم بتحديد مستوى المخاطرة المرتبطة به ('High', 'Medium', 'Low') بناءً على تأثيره المحتمل على السلامة أو التشغيل.
+        - تأكد من أن البنود تغطي الجوانب الرئيسية للعملية المذكورة في طلب المستخدم، مع الأخذ في الاعتبار معايير السلامة والجودة العالمية.
+
+        يجب أن يكون الرد بتنسيق JSON حصريًا وباللغة العربية.
+    `;
+
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            checklist_title: { type: Type.STRING, description: "عنوان وصفي لقائمة التدقيق باللغة العربية." },
+            items: {
+                type: Type.ARRAY,
+                description: "قائمة ببنود التدقيق.",
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        item_text: { type: Type.STRING, description: "نص بند التدقيق القابل للتحقق." },
+                        category: { type: Type.STRING, description: "الفئة التي ينتمي إليها البند." },
+                        risk_level: {
+                            type: Type.STRING,
+                            enum: ['High', 'Medium', 'Low'],
+                            description: "مستوى المخاطرة المرتبط بالبند ('High', 'Medium', 'Low')."
+                        }
+                    },
+                    required: ["item_text", "category", "risk_level"]
+                }
+            }
+        },
+        required: ["checklist_title", "items"]
+    };
+
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: fullPrompt,
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: schema,
+            systemInstruction: "أنت مدقق جودة وسلامة طيران دولي معتمد. قم بالرد بتنسيق JSON حصريًا باللغة العربية."
+        }
+    });
+    const jsonText = response.text.trim();
+    const result = JSON.parse(jsonText);
+    setInCache(cacheKey, result);
+    return result;
+};
+
+
+export const generateHeatmapAnalysis = async (risks: RegisteredRisk[]): Promise<{ summary: string; priority_risks: { risk_title: string; reasoning: string }[] }> => {
+    const ai = getAI();
+    const riskSummary = risks.map(r => `- ${r.risk_title} (الاحتمالية: ${r.likelihood}, التأثير: ${r.impact})`).join('\n');
+
+    const prompt = `
+        أنت مدير مخاطر استراتيجي في قطاع الطيران. مهمتك هي تحليل توزيع المخاطر في الخريطة الحرارية وتقديم ملخص تنفيذي.
+
+        قائمة المخاطر الحالية:
+        ${riskSummary}
+
+        المطلوب:
+        1. **summary**: قدم ملخصًا تحليليًا باللغة العربية حول توزيع المخاطر. أين تتركز المخاطر؟ هل هناك أنماط ملحوظة (مثلاً، معظم المخاطر ذات تأثير كبير ولكن احتمالية منخفضة)؟
+        2. **priority_risks**: حدد أهم 2-3 مخاطر تتطلب اهتمامًا فوريًا. لكل مخاطرة، اذكر عنوانها وسببًا موجزًا لأولويتها (مثلاً، "لأنها تقع في المنطقة الحمراء ذات الاحتمالية والتأثير المرتفعين").
+
+        يجب أن يكون الرد بتنسيق JSON حصريًا وباللغة العربية.
+    `;
+
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            summary: { type: Type.STRING, description: "ملخص تحليلي لتوزيع المخاطر باللغة العربية." },
+            priority_risks: {
+                type: Type.ARRAY,
+                description: "قائمة بأهم 2-3 مخاطر.",
+                items: {
+                    type: Type.OBJECT,
+                    properties: {
+                        risk_title: { type: Type.STRING, description: "عنوان المخاطرة." },
+                        reasoning: { type: Type.STRING, description: "سبب موجز لأولوية المخاطرة." }
+                    },
+                    required: ["risk_title", "reasoning"]
+                }
+            }
+        },
+        required: ["summary", "priority_risks"]
+    };
+
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: schema,
+            systemInstruction: "أنت مدير مخاطر استراتيجي. قم بالرد بتنسيق JSON حصريًا باللغة العربية."
+        }
+    });
+
+    const jsonText = response.text.trim();
+    return JSON.parse(jsonText);
+};
+
+export const generateStrategicGoal = async (
+    idea: string,
+): Promise<Omit<StrategicGoal, 'id'|'createdAt'>> => {
+    const ai = getAI();
+    const availableKpis = Object.values(ALL_KPIS).map(kpi => ({ id: kpi.id, name: kpi.name, description: kpi.tooltip.description }));
+    
+    const prompt = `
+        You are a C-level strategic consultant for an aviation ground handling company. Your task is to transform a high-level idea into a SMART (Specific, Measurable, Achievable, Relevant, Time-bound) strategic goal, and identify the key performance indicators (KPIs) to track it.
+
+        High-level idea: "${idea}"
+
+        Available KPIs for tracking:
+        \`\`\`json
+        ${JSON.stringify(availableKpis)}
+        \`\`\`
+
+        Instructions:
+        1.  **title**: Refine the high-level idea into a concise, professional, and inspiring strategic goal title in Arabic.
+        2.  **description**: Write a brief, clear description in Arabic explaining the purpose and importance of this goal.
+        3.  **timeframe**: Based on the goal's nature, suggest a timeframe. It must be either 'quarterly' or 'yearly'.
+        4.  **linkedKpiIds**: From the provided JSON list of available KPIs, select the 3 to 5 most relevant KPI IDs that will be used to measure progress towards this goal. Return only the IDs in an array of strings.
+
+        The response must be in JSON format only and in Arabic.
+    `;
+
+    const schema = {
+        type: Type.OBJECT,
+        properties: {
+            title: { type: Type.STRING, description: "The refined SMART goal title in Arabic." },
+            description: { type: Type.STRING, description: "A brief description of the goal in Arabic." },
+            timeframe: { type: Type.STRING, enum: ['quarterly', 'yearly'], description: "The suggested timeframe." },
+            linkedKpiIds: {
+                type: Type.ARRAY,
+                description: "An array of the most relevant KPI IDs.",
+                items: { type: Type.STRING }
+            }
+        },
+        required: ["title", "description", "timeframe", "linkedKpiIds"]
+    };
+
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: schema,
+            systemInstruction: "You are a C-level strategic consultant. Respond exclusively in JSON format with Arabic content."
+        }
+    });
+
+    const jsonText = response.text.trim();
+    return JSON.parse(jsonText);
 };

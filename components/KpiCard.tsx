@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState, useEffect, useContext } from 'react';
 import type { KPI, TimePeriod } from '../data.tsx';
 import { calculateKpiScore, RISK_KPI_IDS } from '../data.tsx';
@@ -12,7 +8,7 @@ import { HistoricalTrendModal } from './HistoricalTrendModal.tsx';
 import { ForecastModal } from './ForecastModal.tsx';
 import { RootCauseAnalysisModal } from './RootCauseAnalysisModal.tsx';
 import { TrainingScenarioModal } from './TrainingScenarioModal.tsx';
-import { AppDispatchContext } from '../context/AppContext.tsx';
+import { AppStateContext, AppDispatchContext } from '../context/AppContext.tsx';
 import { KpiCardActions } from './KpiCardActions.tsx';
 
 
@@ -38,6 +34,7 @@ const getUnitLabel = (unit, value) => {
 
 export const KpiCard = ({ kpi, pillarId, currentTimePeriod }: KpiCardProps) => {
   const dispatch = useContext(AppDispatchContext);
+  const { selectedMonth, realCurrentMonth } = useContext(AppStateContext);
   const score = calculateKpiScore(kpi);
   const progressBarColor = score >= 90 ? 'bg-green-500' : score >= 75 ? 'bg-yellow-500' : 'bg-red-500';
   const scoreColorClass = score >= 90 ? 'text-green-400' : score >= 75 ? 'text-yellow-400' : 'text-red-400';
@@ -51,7 +48,7 @@ export const KpiCard = ({ kpi, pillarId, currentTimePeriod }: KpiCardProps) => {
   const [isTrainingModalOpen, setIsTrainingModalOpen] = useState(false);
   const [isInfoExpanded, setIsInfoExpanded] = useState(false);
   
-  const isEditable = currentTimePeriod === 'monthly';
+  const isEditable = currentTimePeriod === 'monthly' && selectedMonth === realCurrentMonth;
   const isRiskKpi = RISK_KPI_IDS.has(kpi.id);
   const showRcaButton = isEditable && score < 90;
 
@@ -126,6 +123,7 @@ export const KpiCard = ({ kpi, pillarId, currentTimePeriod }: KpiCardProps) => {
             <div 
                 className={`text-sm font-bold text-white text-end flex items-center gap-1 ${isEditable ? 'group cursor-pointer' : 'cursor-default'}`}
                 onClick={() => isEditable && setIsEditing(true)}
+                title={!isEditable ? "لا يمكن تعديل البيانات إلا في الشهر الحالي" : ""}
             >
                 {isEditing && isEditable ? (
                 <input

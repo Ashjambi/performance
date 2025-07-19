@@ -4,13 +4,16 @@ import { AppStateContext } from '../context/AppContext.tsx';
 import type { Manager, ExecutiveTab, ManagerWithData } from '../data.tsx';
 import { calculateManagerOverallScore, calculatePillarScore, calculateKpiScore, getManagerSnapshotForPeriod } from '../data.tsx';
 import { Spinner } from './Spinner.tsx';
-import { Squares2X2Icon, ShieldCheckIcon, ClipboardDocumentCheckIcon, BeakerIcon, ShieldExclamationIcon } from '@heroicons/react/24/outline';
+import { Squares2X2Icon, ShieldCheckIcon, FlagIcon, BeakerIcon, ShieldExclamationIcon, Cog6ToothIcon, ClipboardDocumentListIcon, TrophyIcon } from '@heroicons/react/24/outline';
 import { generateBulkRiskProfiles, isAiAvailable, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
 import { ManagerMatrix } from './ManagerMatrix.tsx';
 import { ExecutiveActionHub } from './ExecutiveActionHub.tsx';
 import RiskAssessmentTab from './RiskAssessmentTab.tsx';
 import { ExecutiveOverviewTab } from './ExecutiveOverviewTab.tsx';
 import RiskRegisterTab from './RiskRegisterTab.tsx';
+import SettingsTab from './SettingsTab.tsx';
+import AuditManagementTab from './AuditManagementTab.tsx';
+import StrategicGoalsTab from './StrategicGoalsTab.tsx';
 
 
 // Prop type for the component
@@ -134,11 +137,14 @@ export const ExecutiveDashboard = ({ onEditManager, onGenerateReport }: Executiv
         overview: { label: 'نظرة عامة', icon: Squares2X2Icon, isAi: false },
         matrix: { label: 'مصفوفة الأداء والمخاطر', icon: ShieldCheckIcon, isAi: true },
         risk_assessment: { label: 'تحليل المخاطر الإجرائي', icon: BeakerIcon, isAi: true},
+        strategic_goals: { label: 'الأهداف الاستراتيجية', icon: TrophyIcon, isAi: true },
+        audit_management: { label: 'إدارة التدقيق', icon: ClipboardDocumentListIcon, isAi: true },
         risk_register: {label: 'سجل المخاطر المتكامل', icon: ShieldExclamationIcon, isAi: false },
-        action_hub: { label: 'مركز متابعة الخطط', icon: ClipboardDocumentCheckIcon, isAi: false },
+        action_hub: { label: 'مركز متابعة الخطط', icon: FlagIcon, isAi: false },
+        settings: { label: 'الإعدادات', icon: Cog6ToothIcon, isAi: false },
     };
 
-    const orderedTabs: ExecutiveTab[] = ['overview', 'matrix', 'risk_assessment', 'risk_register', 'action_hub'];
+    const orderedTabs: ExecutiveTab[] = ['overview', 'matrix', 'risk_assessment', 'strategic_goals', 'audit_management', 'risk_register', 'action_hub', 'settings'];
 
     return (
         <div className="space-y-8">
@@ -167,7 +173,7 @@ export const ExecutiveDashboard = ({ onEditManager, onGenerateReport }: Executiv
 
             {/* Content Area */}
             <div id="executive-report-content" className="p-1">
-                {currentTab === 'overview' && (
+                <div className={currentTab === 'overview' ? '' : 'hidden'}>
                     <ExecutiveOverviewTab 
                         managers={managers}
                         managersForDisplay={managersForDisplay}
@@ -179,11 +185,28 @@ export const ExecutiveDashboard = ({ onEditManager, onGenerateReport }: Executiv
                         onEditManager={onEditManager}
                         onGenerateReport={onGenerateReport}
                     />
-                )}
-                {currentTab === 'matrix' && <ManagerMatrix managersData={managersWithRiskProfiles} isLoading={isLoadingMatrix} />}
-                {currentTab === 'risk_assessment' && <RiskAssessmentTab />}
-                {currentTab === 'risk_register' && <RiskRegisterTab />}
-                {currentTab === 'action_hub' && <ExecutiveActionHub managers={managers} />}
+                </div>
+                <div className={currentTab === 'matrix' ? '' : 'hidden'}>
+                    <ManagerMatrix managersData={managersWithRiskProfiles} isLoading={isLoadingMatrix} />
+                </div>
+                 <div className={currentTab === 'risk_assessment' ? '' : 'hidden'}>
+                    <RiskAssessmentTab />
+                </div>
+                 <div className={currentTab === 'strategic_goals' ? '' : 'hidden'}>
+                    <StrategicGoalsTab />
+                </div>
+                <div className={currentTab === 'audit_management' ? '' : 'hidden'}>
+                    <AuditManagementTab />
+                </div>
+                <div className={currentTab === 'risk_register' ? '' : 'hidden'}>
+                    <RiskRegisterTab />
+                </div>
+                <div className={currentTab === 'action_hub' ? '' : 'hidden'}>
+                    <ExecutiveActionHub managers={managers} />
+                </div>
+                 <div className={currentTab === 'settings' ? '' : 'hidden'}>
+                    <SettingsTab />
+                </div>
             </div>
 
         </div>

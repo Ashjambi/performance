@@ -1,8 +1,9 @@
 import React, { useState, useContext, useMemo } from 'react';
 import { AppStateContext, AppDispatchContext } from '../context/AppContext.tsx';
 import type { RegisteredRisk, RiskStatus } from '../data.tsx';
-import { ShieldExclamationIcon, FunnelIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { ShieldExclamationIcon, FunnelIcon, QueueListIcon, MapIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
+import { RiskHeatmap } from './RiskHeatmap.tsx';
 
 
 const STATUS_OPTIONS: RiskStatus[] = ['مفتوح', 'قيد المراجعة', 'تم التخفيف', 'مغلق'];
@@ -21,7 +22,8 @@ const RiskRegisterTab = () => {
     const { riskRegister } = useContext(AppStateContext);
     const dispatch = useContext(AppDispatchContext);
     const [statusFilter, setStatusFilter] = useState<RiskStatus | 'all'>('all');
-    
+    const [viewMode, setViewMode] = useState<'list' | 'heatmap'>('list');
+
     const sortedRisks = useMemo(() => {
         return [...riskRegister].sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }, [riskRegister]);
@@ -43,7 +45,21 @@ const RiskRegisterTab = () => {
                     <ShieldExclamationIcon className="h-6 w-6 text-cyan-400" />
                     سجل المخاطر المتكامل
                 </h2>
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 bg-slate-900 p-1 rounded-md border border-slate-700">
+                    <button onClick={() => setViewMode('list')} className={`px-3 py-1 text-sm font-semibold rounded flex items-center gap-2 ${viewMode === 'list' ? 'bg-cyan-500 text-white' : 'text-slate-400 hover:bg-slate-700/50'}`}>
+                        <QueueListIcon className="h-4 w-4"/>
+                        عرض القائمة
+                    </button>
+                    <button onClick={() => setViewMode('heatmap')} className={`px-3 py-1 text-sm font-semibold rounded flex items-center gap-2 ${viewMode === 'heatmap' ? 'bg-cyan-500 text-white' : 'text-slate-400 hover:bg-slate-700/50'}`}>
+                        <MapIcon className="h-4 w-4"/>
+                        الخريطة الحرارية
+                    </button>
+                </div>
+            </div>
+
+            {viewMode === 'list' && (
+                <>
+                <div className="flex items-center gap-2 text-sm mb-4">
                     <FunnelIcon className="h-5 w-5 text-slate-400" />
                     <span className="text-slate-300">تصفية حسب الحالة:</span>
                     <select
@@ -55,57 +71,61 @@ const RiskRegisterTab = () => {
                         {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                     </select>
                 </div>
-            </div>
-
-            {filteredRisks.length > 0 ? (
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-right text-slate-300">
-                        <thead className="text-xs text-slate-400 uppercase bg-slate-700/50">
-                            <tr>
-                                <th scope="col" className="px-6 py-3">المخاطرة</th>
-                                <th scope="col" className="px-6 py-3">التصنيف</th>
-                                <th scope="col" className="px-6 py-3">الاحتمالية/التأثير</th>
-                                <th scope="col" className="px-6 py-3">تاريخ الإضافة</th>
-                                <th scope="col" className="px-6 py-3">الحالة</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredRisks.map(risk => (
-                                <tr key={risk.id} className="border-b border-slate-700 hover:bg-slate-800/50">
-                                    <th scope="row" className="px-6 py-4 font-medium text-slate-200 whitespace-nowrap">
-                                        <p className="font-bold">{risk.risk_title}</p>
-                                        <p className="text-xs text-slate-400 mt-1 max-w-sm truncate" title={risk.risk_description}>{risk.risk_description}</p>
-                                    </th>
-                                    <td className="px-6 py-4">{risk.category}</td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2">
-                                            <span className={`px-2 py-0.5 text-xs text-white rounded-full ${LIKELIHOOD_COLOR[risk.likelihood]}`}>{risk.likelihood}</span>
-                                            <span className={`px-2 py-0.5 text-xs text-white rounded-full ${IMPACT_COLOR[risk.impact]}`}>{risk.impact}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">{new Date(risk.createdAt).toLocaleDateString('ar-EG')}</td>
-                                    <td className="px-6 py-4">
-                                        <select
-                                            value={risk.status}
-                                            onChange={(e) => handleStatusChange(risk.id, e.target.value as RiskStatus)}
-                                            className={`w-full text-xs font-semibold p-1.5 rounded-md border-2 bg-transparent focus:outline-none focus:ring-1 focus:ring-offset-0 focus:ring-offset-slate-800 focus:ring-white ${STATUS_STYLES[risk.status]}`}
-                                        >
-                                            {STATUS_OPTIONS.map(opt => <option key={opt} value={opt} className="bg-slate-800 text-white font-bold">{opt}</option>)}
-                                        </select>
-                                    </td>
+                {filteredRisks.length > 0 ? (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-right text-slate-300">
+                            <thead className="text-xs text-slate-400 uppercase bg-slate-700/50">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3">المخاطرة</th>
+                                    <th scope="col" className="px-6 py-3">التصنيف</th>
+                                    <th scope="col" className="px-6 py-3">الاحتمالية/التأثير</th>
+                                    <th scope="col" className="px-6 py-3">تاريخ الإضافة</th>
+                                    <th scope="col" className="px-6 py-3">الحالة</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            ) : (
-                <div className="text-center py-16 px-6 bg-slate-800/50 rounded-lg border border-dashed border-slate-700">
-                    <ShieldExclamationIcon className="mx-auto h-12 w-12 text-slate-600" />
-                    <h3 className="mt-2 text-xl font-semibold text-white">سجل المخاطر فارغ</h3>
-                    <p className="mt-1 text-sm text-slate-400">
-                        لم يتم العثور على مخاطر تطابق هذه التصفية. قم بإضافة مخاطر من تبويب "تحليل المخاطر الإجرائي".
-                    </p>
-                </div>
+                            </thead>
+                            <tbody>
+                                {filteredRisks.map(risk => (
+                                    <tr key={risk.id} className="border-b border-slate-700 hover:bg-slate-800/50">
+                                        <th scope="row" className="px-6 py-4 font-medium text-slate-200 whitespace-nowrap">
+                                            <p className="font-bold">{risk.risk_title}</p>
+                                            <p className="text-xs text-slate-400 mt-1 max-w-sm truncate" title={risk.risk_description}>{risk.risk_description}</p>
+                                        </th>
+                                        <td className="px-6 py-4">{risk.category}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`px-2 py-0.5 text-xs text-white rounded-full ${LIKELIHOOD_COLOR[risk.likelihood]}`}>{risk.likelihood}</span>
+                                                <span className={`px-2 py-0.5 text-xs text-white rounded-full ${IMPACT_COLOR[risk.impact]}`}>{risk.impact}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">{new Date(risk.createdAt).toLocaleDateString('ar-EG')}</td>
+                                        <td className="px-6 py-4">
+                                            <select
+                                                value={risk.status}
+                                                onChange={(e) => handleStatusChange(risk.id, e.target.value as RiskStatus)}
+                                                className={`w-full text-xs font-semibold p-1.5 rounded-md border-2 bg-transparent focus:outline-none focus:ring-1 focus:ring-offset-0 focus:ring-offset-slate-800 focus:ring-white ${STATUS_STYLES[risk.status]}`}
+                                            >
+                                                {STATUS_OPTIONS.map(opt => <option key={opt} value={opt} className="bg-slate-800 text-white font-bold">{opt}</option>)}
+                                            </select>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="text-center py-16 px-6 bg-slate-800/50 rounded-lg border border-dashed border-slate-700">
+                        <ShieldExclamationIcon className="mx-auto h-12 w-12 text-slate-600" />
+                        <h3 className="mt-2 text-xl font-semibold text-white">سجل المخاطر فارغ</h3>
+                        <p className="mt-1 text-sm text-slate-400">
+                            لم يتم العثور على مخاطر تطابق هذه التصفية. قم بإضافة مخاطر من تبويب "تحليل المخاطر الإجرائي".
+                        </p>
+                    </div>
+                )}
+                </>
+            )}
+
+            {viewMode === 'heatmap' && (
+                <RiskHeatmap risks={riskRegister} />
             )}
         </div>
     );

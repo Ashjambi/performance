@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 import { UserPlusIcon, ChevronDownIcon, PencilSquareIcon, UserIcon, BellIcon } from '@heroicons/react/24/solid';
-import { PresentationChartLineIcon } from '@heroicons/react/24/outline';
+import { PresentationChartLineIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { AppStateContext, AppDispatchContext } from '../context/AppContext.tsx';
 import type { Alert, TimePeriod } from '../data.tsx';
-import { ROLES } from '../data.tsx';
+import { ROLES, getAvailableMonths } from '../data.tsx';
 import { AlertsPanel } from './AlertsPanel.tsx';
 
 
@@ -14,7 +14,7 @@ type HeaderProps = {
 };
 
 export const Header = ({ onAddManager, onEditManager, alerts }: HeaderProps) => {
-  const { managers, selectedManagerId, currentView, currentTimePeriod } = useContext(AppStateContext);
+  const { managers, selectedManagerId, currentView, currentTimePeriod, selectedMonth } = useContext(AppStateContext);
   const dispatch = useContext(AppDispatchContext);
   const [isAlertsPanelOpen, setIsAlertsPanelOpen] = useState(false);
 
@@ -32,8 +32,32 @@ export const Header = ({ onAddManager, onEditManager, alerts }: HeaderProps) => 
   const handleTimePeriodChange = (period: TimePeriod) => {
       dispatch({ type: 'SET_TIME_PERIOD', payload: period });
   }
+  
+  const handleMonthChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+      dispatch({ type: 'SET_SELECTED_MONTH', payload: event.target.value });
+  };
 
   const unreadAlertsCount = alerts.filter(a => !a.isRead).length;
+  
+  const availableMonths = getAvailableMonths(managers);
+
+  const MonthSelector = () => (
+    <div className="relative">
+      <select 
+        value={selectedMonth} 
+        onChange={handleMonthChange}
+        className="appearance-none bg-slate-800 border border-slate-700 text-white font-semibold rounded-md py-2 ps-10 pe-8 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors text-sm"
+        aria-label="Select Month"
+      >
+        {availableMonths.map(month => (
+          <option key={month.value} value={month.value}>
+            {month.label}
+          </option>
+        ))}
+      </select>
+      <CalendarIcon className="h-5 w-5 text-slate-400 absolute top-1/2 -translate-y-1/2 start-3 pointer-events-none" />
+    </div>
+  );
 
   const TimePeriodSelector = () => (
     <div className="bg-slate-800 p-1 rounded-lg flex items-center border border-slate-700">
@@ -53,20 +77,20 @@ export const Header = ({ onAddManager, onEditManager, alerts }: HeaderProps) => 
   );
 
   return (
-    <header className="bg-slate-900/70 backdrop-blur-lg shadow-lg sticky top-0 z-50 flex items-center h-24">
+    <header className="bg-slate-900/70 backdrop-blur-lg shadow-lg sticky top-0 z-50 flex items-center min-h-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex items-center justify-between gap-4 py-2">
-            <div className="flex items-center gap-4 flex-shrink-0">
+            <div className="flex flex-1 items-center gap-4 min-w-0">
               <div className="text-3xl font-black text-white tracking-wider">SGS</div>
-              <div className="flex flex-col">
-                  <h1 className="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight whitespace-nowrap">
+              <div className="flex flex-col min-w-0">
+                  <h1 className="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight">
                     {currentView === 'manager' 
                         ? <>تقييم أداء: <span className="text-cyan-400">{selectedManager?.name || '...'}</span></>
                         : <span className="text-cyan-400">لوحة المتابعة التنفيذية</span>
                     }
                   </h1>
                   {currentView === 'manager' && selectedManager && (
-                      <span className="text-sm text-slate-400 font-normal whitespace-nowrap">{selectedManager.department} ({selectedManagerRoleName})</span>
+                      <span className="text-sm text-slate-400 font-normal">{selectedManager.department} ({selectedManagerRoleName})</span>
                   )}
               </div>
             </div>
@@ -93,7 +117,10 @@ export const Header = ({ onAddManager, onEditManager, alerts }: HeaderProps) => 
                     )}
                 </div>
 
-              <TimePeriodSelector />
+                <div className="flex items-center gap-2">
+                    <TimePeriodSelector />
+                    {currentTimePeriod === 'monthly' && <MonthSelector />}
+                </div>
 
               <div className="bg-slate-800 p-1 rounded-lg flex items-center border border-slate-700">
                 <button 

@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import { CalculatorIcon, LightBulbIcon, SparklesIcon, ScaleIcon, ClockIcon } from '@heroicons/react/24/outline';
@@ -9,7 +5,7 @@ import { toast } from 'react-hot-toast';
 import type { KPI, CalculationGuide, CalculationFormula } from '../data.tsx';
 import { Spinner } from './Spinner.tsx';
 import { generateCalculationGuide, API_KEY_ERROR_MESSAGE } from '../services/geminiService.tsx';
-import { AppDispatchContext } from '../context/AppContext.tsx';
+import { AppStateContext, AppDispatchContext } from '../context/AppContext.tsx';
 
 type HowToCalculateModalProps = {
   isOpen: boolean;
@@ -89,6 +85,7 @@ const calculateKpiValue = (formula: CalculationFormula, values: FormValues): num
 
 export const HowToCalculateModal = ({ isOpen, onClose, kpi, pillarId }: HowToCalculateModalProps) => {
   const dispatch = useContext(AppDispatchContext);
+  const { selectedMonth, realCurrentMonth } = useContext(AppStateContext);
   const [guide, setGuide] = useState<CalculationGuide | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -125,6 +122,8 @@ export const HowToCalculateModal = ({ isOpen, onClose, kpi, pillarId }: HowToCal
     toast.success(`تم تحديث قيمة "${kpi.name}" بنجاح.`);
     onClose();
   };
+  
+  const canEditData = selectedMonth === realCurrentMonth;
 
   useEffect(() => {
     const fetchGuide = async () => {
@@ -251,7 +250,8 @@ export const HowToCalculateModal = ({ isOpen, onClose, kpi, pillarId }: HowToCal
             </button>
             <button
                 onClick={handleApply}
-                disabled={calculatedValue === null}
+                disabled={calculatedValue === null || !canEditData}
+                title={!canEditData ? "لا يمكن حفظ البيانات إلا في الشهر الحالي" : ""}
                 className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors disabled:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 تطبيق وحفظ القيمة

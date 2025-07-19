@@ -4,7 +4,7 @@ import { SparklesIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 import { AppStateContext } from '../context/AppContext.tsx';
 import type { Manager } from '../data.tsx';
-import { getAvailableMonthsForCompetition, calculateManagerScoreForMonth, getManagerSnapshotForMonth } from '../data.tsx';
+import { getAvailableMonths, calculateManagerScoreForMonth, getManagerSnapshotForMonth, getCurrentMonthIdentifier } from '../data.tsx';
 import { generateCompetitionAnnouncement, generateWinnerAnalysis, API_KEY_ERROR_MESSAGE, isAiAvailable } from '../services/geminiService.tsx';
 import { Spinner } from './Spinner.tsx';
 
@@ -49,7 +49,12 @@ export const CompetitionModal = ({ isOpen, onClose }) => {
     const [winnerAnalysis, setWinnerAnalysis] = useState<string | null>(null);
     const [announcement, setAnnouncement] = useState<string | null>(null);
 
-    const availableMonths = useMemo(() => getAvailableMonthsForCompetition(managers), [managers]);
+    const availableMonths = useMemo(() => {
+        const allMonths = getAvailableMonths(managers);
+        const currentMonth = getCurrentMonthIdentifier();
+        // Exclude current month for "Manager of the Month" competition.
+        return allMonths.filter(m => m.value !== currentMonth);
+    }, [managers]);
 
     const resetState = () => {
         setPodiumResults(null);

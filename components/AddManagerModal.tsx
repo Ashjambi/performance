@@ -16,7 +16,6 @@ export const AddManagerModal = ({ isOpen, onClose, roles }: AddManagerModalProps
   const [department, setDepartment] = useState('');
   const [role, setRole] = useState<ManagerRole>('RAMP');
 
-
   if (!isOpen) return null;
 
   const handleAddClick = () => {
